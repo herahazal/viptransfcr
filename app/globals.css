@@ -1,0 +1,1124 @@
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --light: #fff;
+  --dark: #0f0f0f;
+  --plane-bg: #cfe6ea;
+  --plane-text-color: #0f0f0f; /* footer'a yaklaşınca GSAP ile #ffffff yapılıyor */
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Instrument Serif", sans-serif;
+  color: var(--dark);
+}
+
+img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+h1 {
+  font-size: clamp(5rem, 6vw, 7rem);
+  font-weight: 500;
+  line-height: 0.8;
+}
+
+p {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+section {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.hero {
+  perspective: 1000px;
+  color: var(--light);
+  position: relative; /* fade overlay + compositing */
+  isolation: isolate; /* ✅ desktopu bozmaz, mobile seam’i azaltır */
+}
+
+.outro {
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.hero-copy {
+  opacity: 0; /* ✅ ilk render’da gizli */
+  visibility: hidden; /* ✅ 1 frame flash tamamen biter */
+}
+
+.sky-container,
+.hero-copy,
+.window-container,
+.hero-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  will-change: transform;
+}
+
+.sky-container {
+  position: relative;
+  height: 350svh;
+}
+
+/* ✅ Sky'nin altına base fade (desktop için aynı bırakıldı) */
+.sky-container::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 25vh;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(207, 230, 234, 1) 100%
+  );
+}
+
+.hero-copy {
+  height: 100svh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-copy h1 {
+  width: 85%;
+}
+
+.window-container {
+  height: 100svh;
+}
+
+.hero-header {
+  height: 100svh;
+  padding: 2rem;
+  display: flex;
+  transform-style: preserve-3d;
+}
+
+.hero-header .col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.hero-header .col p {
+  width: 50%;
+}
+
+.hero-header .col:nth-child(2) {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.plane-section {
+  background: var(--plane-bg);
+}
+
+/* Plane section */
+.plane-section {
+  position: relative;
+  height: 100vh;
+  background: var(--plane-bg);
+  overflow: hidden;
+}
+
+.plane-wrapper {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* ❌ GLOBAL canvas kuralı kaldırıldı */
+/* ✅ SADECE plane canvas */
+.plane-canvas {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 2;
+}
+
+/* Plane section: varsayılan siyah; footer'a yaklaşınca GSAP --plane-text-color ile beyaz */
+.left-text,
+.right-text {
+  color: var(--plane-text-color);
+}
+
+.left-text {
+  position: absolute;
+  left: 6%;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  max-width: 400px;
+}
+
+.right-text {
+  position: absolute;
+  right: 6%;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  text-align: right;
+}
+
+.left-text h2,
+.right-text h2 {
+  font-size: clamp(48px, 8vw, 120px);
+  line-height: 0.9;
+  margin: 0;
+  font-weight: 700;
+}
+
+.left-text p {
+  margin-top: 16px;
+  opacity: 0.8;
+}
+
+/* ✅ Hero altında scroll ile açılan fade overlay (desktop OK) */
+.hero-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 30vh;
+  pointer-events: none;
+  z-index: 999;
+
+  opacity: 0;
+  transition: opacity 0.1s linear;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(207, 230, 234, 0) 0%,
+    rgba(207, 230, 234, 0.55) 45%,
+    rgba(207, 230, 234, 1) 100%
+  );
+
+  filter: blur(14px);
+  transform: translateY(14px);
+}
+
+@media (max-width: 1000px) {
+  h1 {
+    font-size: 3rem;
+  }
+
+  p {
+    font-size: 1.125rem;
+  }
+
+  /* ✅ mobile'da hero-fade aynı kalsın ama biraz daha güçlü */
+  .hero-fade {
+    bottom: -14px;
+    height: 40vh;
+    filter: blur(22px);
+    transform: translateY(22px);
+  }
+
+  /* ✅ asıl seam’i yok eden: sky overlay'ini güçlendir (desktop bozulmaz) */
+  .sky-container::after {
+    height: 34vh;
+    background:
+      linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.22) 0%,
+        rgba(0, 0, 0, 0.1) 18%,
+        rgba(0, 0, 0, 0) 42%
+      ),
+      linear-gradient(
+        to bottom,
+        rgba(207, 230, 234, 0) 0%,
+        rgba(207, 230, 234, 0.65) 55%,
+        rgba(207, 230, 234, 1) 100%
+      );
+    filter: blur(10px);
+    transform: translateY(10px);
+  }
+
+  /* ✅ sky görseli altındaki 1px bandı yut */
+  .sky-container img {
+    transform: translateY(6px) scale(1.03);
+    transform-origin: bottom;
+  }
+}
+
+/* ✅ iOS Safari ekstra güvenlik */
+@supports (-webkit-touch-callout: none) {
+  .hero-fade {
+    bottom: -16px;
+    filter: blur(24px);
+    transform: translateY(24px);
+  }
+
+  .sky-container::after {
+    height: 38vh;
+    filter: blur(12px);
+    transform: translateY(12px);
+  }
+
+  .sky-container img {
+    transform: translateY(7px) scale(1.035);
+  }
+}
+
+/* ✅ Mobile: window içindeki yazılar taşmasın (DESKTOP bozulmaz) */
+@media (max-width: 1000px) {
+  .hero-header {
+    padding: 1.25rem; /* desktop 2rem kalır */
+    display: grid; /* flex yerine daha stabil */
+    grid-template-columns: 1fr; /* tek kolon */
+    align-content: space-between;
+    gap: 1.25rem;
+  }
+
+  .hero-header .col {
+    justify-content: flex-start;
+    gap: 0.75rem;
+  }
+
+  /* Sağ kolon mobilde sağa yaslanıp taşıyordu -> normal akış */
+  .hero-header .col:nth-child(2) {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  /* Metinleri mobile’a uygun küçült */
+  .hero-header h1 {
+    font-size: clamp(2.2rem, 8.5vw, 3.2rem);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-header p {
+    width: 100% !important; /* desktop 50% kuralını ez */
+    max-width: 28ch; /* çok uzamasın */
+    font-size: 1rem;
+    line-height: 1.1;
+    opacity: 0.92;
+  }
+
+  /* “Observation Mode” gibi küçük metin */
+  .hero-header .col:nth-child(2) > p {
+    font-size: 0.95rem;
+    opacity: 0.9;
+  }
+}
+
+@media (max-width: 600px) {
+  .window-container img {
+    object-fit: cover;
+    object-position: center;
+    transform: scale(1.02); /* çok minik, sadece mobile */
+  }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
+
+/* ============================================================
+   Hero circular gallery
+   Overlay INSIDE the pinned .hero — not a section. Every selector
+   below is scoped to .hero-gallery*, so no existing rule changes.
+
+   The wrapper never animates: no transition, no fade, no scale.
+   Hero flips visibility/opacity/pointer-events in one step and the
+   only thing that moves afterwards is the items on the curve.
+   ============================================================ */
+
+.hero-gallery {
+  position: absolute;
+  inset: 0;
+  /* 0, not a positive value: it must paint below .hero-copy, which is a
+     positioned sibling with z-index auto that comes later in the DOM.
+     Layering is clouds → gallery → hero copy. */
+  z-index: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Anchored to the top of the viewport, not centred: the hero copy is a
+     vertically centred block, so the only way to keep real clearance above it
+     is to pin the gallery to the upper band. It never moves after that. */
+  justify-content: flex-start;
+  /* The 33px compensates for the label that used to sit above the stage, so
+     removing it left the cards at exactly the same height. */
+  padding-top: calc(3svh + 33px);
+  gap: 1.1rem;
+
+  /* Pre-entry state: parked below the viewport, never faded. Hero slides it
+     up into place and it stays. Opacity is always 1. */
+  opacity: 1;
+  visibility: hidden;
+  transform: translateY(100svh);
+  pointer-events: none;
+
+  /* the reveal is a single step — never interpolate it */
+  transition: none !important;
+}
+
+.hero-gallery-label {
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(18, 33, 42, 0.62);
+  margin: 0;
+}
+
+/* Reserved box: fixed height regardless of media state, so warming up the
+   WebGL canvas cannot shift anything. */
+.hero-gallery-stage {
+  position: relative;
+  width: 100%;
+  height: min(42svh, 380px);
+
+  /* the browser keeps vertical panning; horizontal gestures reach our
+     pointer handlers, so page scroll is never blocked */
+  touch-action: pan-y;
+}
+
+/* The React Bits container fills the reserved stage. */
+.hero-gallery-stage .circular-gallery {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Reduced motion: a still arrangement in the same place. */
+.hero-gallery-static {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  padding: 0 2rem;
+}
+
+.hero-gallery-static figure {
+  width: min(26vw, 280px);
+  margin: 0;
+}
+
+.hero-gallery-static img {
+  width: 100%;
+  height: min(30svh, 270px);
+  object-fit: cover;
+  border-radius: 2px;
+  display: block;
+}
+
+.hero-gallery-static figcaption {
+  margin-top: 0.7rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: rgba(18, 33, 42, 0.7);
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .hero-gallery {
+    gap: 1rem;
+  }
+
+  .hero-gallery-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+  }
+
+  .hero-gallery-stage {
+    height: min(32svh, 260px);
+  }
+
+  .hero-gallery-static figure {
+    width: 40vw;
+  }
+
+  .hero-gallery-static img {
+    height: min(22svh, 190px);
+  }
+
+  /* three stills do not fit a phone; show two */
+  .hero-gallery-static figure:nth-child(3) {
+    display: none;
+  }
+}
+
+/* ============================================================
+   Entry loader — scoped to .site-loader*, nothing else changes.
+   ============================================================ */
+
+.site-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* the site's own cold blue-white, so the reveal is a continuation */
+  background: linear-gradient(180deg, #dceef2 0%, #cfe6ea 55%, #c3dee4 100%);
+  color: #12212a;
+
+  opacity: 1;
+  transition: opacity 0.8s ease;
+}
+
+.site-loader.is-done {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.site-loader-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0 2rem;
+  text-align: center;
+}
+
+.site-loader-name {
+  font-size: clamp(1.9rem, 4vw, 3.1rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.site-loader-role {
+  font-size: 0.74rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  margin: 0 0 0.6rem;
+}
+
+.site-loader-track {
+  width: min(220px, 50vw);
+  height: 1px;
+  background: rgba(18, 33, 42, 0.18);
+  overflow: hidden;
+}
+
+.site-loader-bar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: rgba(18, 33, 42, 0.75);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.45s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-loader,
+  .site-loader-bar {
+    transition: none;
+  }
+}
+
+/* The gallery now occupies the top band and stays there. The hero copy is a
+   vertically centred block, which makes clearance impossible, so it is moved
+   into the lower band instead. Its typography, size, colour and the existing
+   yPercent entry animation are all untouched — only the resting position. */
+.hero-copy {
+  align-items: flex-end;
+  padding-bottom: 6svh;
+}
+
+@media (max-width: 900px) {
+  .hero-copy {
+    padding-bottom: 4svh;
+  }
+}
+
+/* ============================================================
+   Editorial sections — Services / Start a project / Community
+   Additive only. Every selector is scoped to .editorial* or the
+   section's own class, so no existing rule changes behaviour.
+
+   These live inside the dark corridor PlaneOutro already fades
+   into (#0b0b0c) and reuse the hairline + micro-label language
+   the footer established. No new colours are introduced.
+   ============================================================ */
+
+.editorial {
+  /* overrides the global `section { height:100svh; overflow:hidden }` */
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+
+  background: #0b0b0c;
+  color: var(--light);
+  padding: clamp(6rem, 14vh, 11rem) 0;
+}
+
+.editorial-inner {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.editorial-head {
+  max-width: 62ch;
+  margin-bottom: clamp(3.5rem, 8vh, 6rem);
+}
+
+/* same micro-label as .hero-gallery-label, in the dark register */
+.editorial-label {
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  margin: 0 0 1.4rem;
+}
+
+.editorial-title {
+  font-size: clamp(2.6rem, 5.4vw, 5rem);
+  font-weight: 500;
+  line-height: 0.88;
+  letter-spacing: -0.01em;
+  margin: 0 0 1.6rem;
+}
+
+.editorial-lede {
+  font-size: clamp(1rem, 1.2vw, 1.2rem);
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+.editorial-foot {
+  margin-top: clamp(2.5rem, 6vh, 4rem);
+}
+
+.editorial-link {
+  font-size: 0.85rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--light);
+  text-decoration: none;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+  transition: border-color 0.35s ease;
+}
+
+.editorial-link:hover {
+  border-color: rgba(255, 255, 255, 0.9);
+}
+
+.editorial-link:focus-visible,
+.editorial-button:focus-visible,
+.brief-input:focus-visible,
+.brief-submit:focus-visible {
+  outline: 1px solid rgba(255, 255, 255, 0.7);
+  outline-offset: 6px;
+}
+
+.editorial-button {
+  font-family: inherit;
+  font-size: 0.85rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #0b0b0c;
+  background: var(--light);
+  border: 1px solid var(--light);
+  padding: 0.95rem 1.7rem;
+  cursor: pointer;
+  transition:
+    background 0.35s ease,
+    color 0.35s ease;
+}
+
+.editorial-button:hover {
+  background: transparent;
+  color: var(--light);
+}
+
+.editorial-button-quiet {
+  background: transparent;
+  color: var(--light);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.editorial-button-quiet:hover {
+  border-color: var(--light);
+  background: transparent;
+  color: var(--light);
+}
+
+/* ---- Services ---------------------------------------------- */
+
+.service-list {
+  list-style: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.service-row {
+  display: grid;
+  grid-template-columns: 3.5rem minmax(0, 1fr) minmax(0, 15rem);
+  gap: 2rem;
+  align-items: baseline;
+  padding: clamp(1.8rem, 4vh, 2.8rem) 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.service-index {
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.35);
+  font-variant-numeric: tabular-nums;
+}
+
+.service-title {
+  font-size: clamp(1.7rem, 2.7vw, 2.5rem);
+  font-weight: 500;
+  line-height: 1.02;
+  margin: 0 0 0.75rem;
+}
+
+.service-summary {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.58);
+  max-width: 52ch;
+  margin: 0;
+}
+
+.service-tags {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.1rem;
+  justify-content: flex-end;
+  font-size: 0.78rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.38);
+}
+
+/* ---- Start a project --------------------------------------- */
+
+.brief-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.6rem, 3vw, 2.6rem);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding-top: clamp(2rem, 5vh, 3rem);
+}
+
+.brief-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.brief-field-wide {
+  grid-column: 1 / -1;
+}
+
+.brief-label {
+  font-size: 0.74rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.brief-input {
+  font-family: inherit;
+  font-size: clamp(1.05rem, 1.5vw, 1.35rem);
+  line-height: 1.3;
+  color: var(--light);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0;
+  padding: 0 0 0.85rem;
+  transition: border-color 0.35s ease;
+  width: 100%;
+}
+
+.brief-input::placeholder {
+  color: rgba(255, 255, 255, 0.28);
+}
+
+.brief-input:hover,
+.brief-input:focus {
+  border-bottom-color: rgba(255, 255, 255, 0.65);
+}
+
+.brief-input:focus {
+  outline: none;
+}
+
+.brief-select {
+  appearance: none;
+  cursor: pointer;
+}
+
+/* the popup is drawn by the OS — keep its own options legible */
+.brief-select option {
+  color: #0f0f0f;
+  background: #fff;
+}
+
+.brief-textarea {
+  resize: vertical;
+  min-height: 4.5rem;
+}
+
+.brief-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem 2rem;
+  margin-top: clamp(2.5rem, 6vh, 4rem);
+}
+
+.brief-submit {
+  font-family: inherit;
+  font-size: 0.85rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #0b0b0c;
+  background: var(--light);
+  border: 1px solid var(--light);
+  padding: 1rem 2rem;
+  cursor: pointer;
+  transition:
+    background 0.35s ease,
+    color 0.35s ease;
+}
+
+.brief-submit:hover {
+  background: transparent;
+  color: var(--light);
+}
+
+.brief-note {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.45);
+  margin: 0;
+}
+
+/* ---- Community --------------------------------------------- */
+
+.community-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: clamp(2.5rem, 6vw, 5rem);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding-top: clamp(2rem, 5vh, 3rem);
+}
+
+.tiers {
+  display: grid;
+  gap: clamp(2rem, 4vh, 3rem);
+}
+
+.tier {
+  padding-bottom: clamp(1.6rem, 3.5vh, 2.4rem);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.tier-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.tier-name {
+  font-size: clamp(1.6rem, 2.4vw, 2.2rem);
+  font-weight: 500;
+  line-height: 1;
+  margin: 0;
+}
+
+.tier-price {
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.tier-note {
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0 0 1.3rem;
+}
+
+.tier-list {
+  list-style: none;
+  display: grid;
+  gap: 0.6rem;
+  font-size: 0.98rem;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.tier-list li {
+  padding-left: 1.2rem;
+  position: relative;
+}
+
+.tier-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 0.5rem;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.preview-list {
+  list-style: none;
+  margin-top: 1.4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.preview-row {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr) 1rem;
+  gap: 1rem;
+  align-items: baseline;
+  padding: 1.1rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.preview-kind {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.preview-title {
+  font-size: 1rem;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.preview-lock {
+  color: rgba(255, 255, 255, 0.3);
+  text-align: right;
+}
+
+.community-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.6rem;
+  margin-top: clamp(2.5rem, 6vh, 4rem);
+}
+
+.community-note {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 0;
+}
+
+/* ---- Tablet ------------------------------------------------- */
+
+@media (max-width: 1000px) {
+  .service-row {
+    grid-template-columns: 2.6rem minmax(0, 1fr);
+  }
+
+  .service-tags {
+    grid-column: 2;
+    justify-content: flex-start;
+    margin-top: 0.9rem;
+  }
+
+  .community-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---- Mobile ------------------------------------------------- */
+
+@media (max-width: 700px) {
+  .editorial-inner {
+    padding: 0 1.25rem;
+  }
+
+  .service-row {
+    grid-template-columns: 2.2rem minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  .brief-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .preview-row {
+    grid-template-columns: minmax(0, 1fr) 1rem;
+  }
+
+  .preview-kind {
+    grid-column: 1;
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+
+  .preview-title {
+    grid-column: 1;
+  }
+
+  .community-actions .editorial-button {
+    flex: 1 1 auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editorial-link,
+  .editorial-button,
+  .brief-input,
+  .brief-submit {
+    transition: none;
+  }
+}
+
+/* ============================================================
+   Two targeted fixes. Additive only — no existing declaration
+   is edited, and nothing visual changes.
+   ============================================================ */
+
+/* 1. The aperture layers are purely decorative (sky plate, window plate,
+      header type) but each is a full-viewport absolute box with the default
+      pointer-events, so they intercepted every mouse event before it could
+      reach the gallery canvas underneath. None of them contains a link or a
+      control, so making them pointer-transparent changes nothing on screen —
+      it only lets the pointer through to the gallery. */
+.hero-copy,
+.window-container,
+.hero-header {
+  pointer-events: none;
+}
+
+/* 2. Mobile: the plane-scene captions are pinned to opposite edges, which
+      collide on a narrow screen. Stack and centre them instead.
+      `transform` is deliberately untouched — GSAP animates it on these two
+      elements, so overriding it here would fight the entrance animation. */
+@media (max-width: 700px) {
+  .left-text,
+  .right-text {
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: none;
+    padding: 0 1.25rem;
+    text-align: center;
+  }
+
+  .left-text {
+    top: calc(50% - 92px);
+  }
+
+  .right-text {
+    top: calc(50% + 22px);
+  }
+
+  .left-text p {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
