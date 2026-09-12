@@ -192,7 +192,14 @@ const HeroCircularGallery = forwardRef<HeroCircularGalleryHandle>(
           {!reducedMotion && (
             <CircularGallery
               items={galleryItems}
-              bend={isMobile ? 2 : 3}
+              // Flatter on mobile (a higher bend number = a shallower curve,
+              // not a tighter one — see CircularGallery's `update()`, where a
+              // smaller bend shrinks the radius and so steepens the dip/tilt
+              // per unit of scroll offset). Bend 2 was tighter than desktop's
+              // 3, which is backwards for a phone: the two visible side cards
+              // rotated so hard their captions crossed and overlapped each
+              // other illegibly. 6 keeps them close to flat and readable.
+              bend={isMobile ? 6 : 3}
               textColor="#12212a"
               borderRadius={0.03}
               scrollEase={0.06}
