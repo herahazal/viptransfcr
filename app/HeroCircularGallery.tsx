@@ -11,6 +11,7 @@ import {
 import CircularGallery, {
   type CircularGalleryApi,
 } from "@/components/CircularGallery";
+import { useLanguage } from "@/lib/i18n";
 
 /**
  * The gallery layer inside the Hero aperture sequence.
@@ -42,11 +43,22 @@ import CircularGallery, {
  * directly, so a PNG with transparency (e.g. /window.png) renders as a black
  * rectangle rather than compositing over the clouds.
  * ------------------------------------------------------------------------- */
-const GALLERY_ITEMS = [
+const GALLERY_ITEMS_TR = [
   { image: "/media/asteroid/still-desktop.webp", text: "İstanbul Havalimanı Transfer" },
   { image: "/sky.jpg", text: "Sabiha Gökçen Havalimanı Transfer" },
   { image: "/media/asteroid/poster-desktop.webp", text: "Türkiye Geneli VIP Transfer" },
   { image: "/sky2.jpg", text: "Şehirler Arası Transfer" },
+  { image: "/media/asteroid/still-desktop.webp", text: "Özel Şoförlü Araç" },
+  { image: "/sky.jpg", text: "Kurumsal Transfer" },
+];
+
+const GALLERY_ITEMS_EN = [
+  { image: "/media/asteroid/still-desktop.webp", text: "Istanbul Airport Transfer" },
+  { image: "/sky.jpg", text: "Sabiha Gökçen Airport Transfer" },
+  { image: "/media/asteroid/poster-desktop.webp", text: "Nationwide VIP Transfer" },
+  { image: "/sky2.jpg", text: "Intercity Transfer" },
+  { image: "/media/asteroid/still-desktop.webp", text: "Chauffeured Car" },
+  { image: "/sky.jpg", text: "Corporate Transfer" },
 ];
 
 /*
@@ -102,19 +114,21 @@ const HeroCircularGallery = forwardRef<HeroCircularGalleryHandle>(
 
     const isMobile = useMediaQuery("(max-width: 900px)");
     const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
+    const { lang } = useLanguage();
+    const galleryItems = lang === "tr" ? GALLERY_ITEMS_TR : GALLERY_ITEMS_EN;
 
     // Images are requested on the very first client render, alongside the
     // renderer below. Everything therefore loads behind the entry loader, and
     // nothing at all is created once the visitor starts scrolling.
     useEffect(() => {
       if (reducedMotion) return;
-      GALLERY_ITEMS.forEach((item) => {
+      galleryItems.forEach((item) => {
         const img = new Image();
         img.decoding = "async";
         img.src = item.image;
         void img.decode().catch(() => undefined);
       });
-    }, [reducedMotion]);
+    }, [reducedMotion, galleryItems]);
 
     useImperativeHandle(
       ref,
@@ -165,7 +179,7 @@ const HeroCircularGallery = forwardRef<HeroCircularGalleryHandle>(
         <div className="hero-gallery-stage">
           {reducedMotion && (
             <div className="hero-gallery-static">
-              {GALLERY_ITEMS.slice(0, 3).map((item) => (
+              {galleryItems.slice(0, 3).map((item) => (
                 <figure key={item.text}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={item.image} alt="" decoding="async" />
@@ -177,7 +191,7 @@ const HeroCircularGallery = forwardRef<HeroCircularGalleryHandle>(
 
           {!reducedMotion && (
             <CircularGallery
-              items={GALLERY_ITEMS}
+              items={galleryItems}
               bend={isMobile ? 2 : 3}
               textColor="#12212a"
               borderRadius={0.03}

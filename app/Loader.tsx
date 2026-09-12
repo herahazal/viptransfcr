@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useLanguage } from "@/lib/i18n";
 
 /**
  * Layout effect on the client, plain effect on the server render. This has to
@@ -29,6 +30,7 @@ const CRITICAL = ["/sky.jpg", "/window.png"];
 const MAX_HOLD_MS = 6000;
 
 export default function Loader() {
+  const { t } = useLanguage();
   const [progress, setProgress] = useState(0);
   const [done, setDone] = useState(false);
   const [gone, setGone] = useState(false);
@@ -109,7 +111,9 @@ export default function Loader() {
     <div className={`site-loader${done ? " is-done" : ""}`} aria-hidden={done}>
       <div className="site-loader-inner">
         <p className="site-loader-name">My VIP Transfer</p>
-        <p className="site-loader-role">Premium Transfer Hizmeti</p>
+        <p className="site-loader-role">
+          {t("PREMIUM TRANSFER HİZMETİ", "PREMIUM TRANSFER SERVICE")}
+        </p>
 
         <div
           className="site-loader-track"

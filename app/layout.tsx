@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { LanguageProvider } from "@/lib/i18n";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,7 +46,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        {/* Client-side TR/EN switch. Metadata above (and this initial
+            `lang="tr"`) stay the Turkish default for SEO/first paint; the
+            provider updates <html lang> and the tab title once a visitor
+            toggles. */}
+        <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>
   );
