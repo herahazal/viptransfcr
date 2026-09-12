@@ -1,69 +1,83 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, {
+  Suspense,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { Canvas } from "@react-three/fiber";
+import { useGLTF } from "@react-three/drei";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import type { ModelViewerElement } from "@/types/model-viewer";
+import * as THREE from "three";
 import { useLanguage } from "@/lib/i18n";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const MODEL_PATH = "/models/mercedes_vito_van_2010_facelift_short_version.glb";
+const BASE_Y = 6.2;
 
-/**
- * Fixed bird's-eye "drone follow-cam" — no camera animation at all.
- *
- *   camera-orbit is set ONCE (180deg azimuth, 0deg polar — dead overhead,
- *   headlights pointing up the page) and never touched again: no
- *   auto-rotate, no yaw/tilt/spin, no scroll-driven orbit. The van itself
- *   never moves either. The only thing scroll drives is the road-lines
- *   layer's background-position, sliding downward beneath the van — the
- *   classic "camera follows, road flows past" illusion.
- *
- *   Azimuth is 180deg rather than 0deg purely to face the van's front (the
- *   headlights) toward the top of the screen — the model's un-rotated
- *   heading faces the opposite way. This is still a single fixed constant,
- *   never interpolated.
- */
-const FIXED_AZIMUTH = 180;
-const FIXED_RADIUS = 150; // % — desktop framing distance
-const MOBILE_FIXED_RADIUS = 260; // % — pulled back further so the van clears
-// the stacked mobile captions (see the `@media (max-width: 700px)` rule in
-// globals.css for `.left-text`/`.right-text`).
+type PlaneModelProps = {
+  planeRef: React.MutableRefObject<THREE.Group | null>;
+  onReady: () => void;
+  isMobile: boolean;
+};
 
-/** Body paint recolour: white -> black. Only the "paint" material (the
- *  painted body panels) is touched — glass, bodyParts (trim/bumpers/
- *  mirrors), interior and tires are untouched. */
-const BODY_MATERIAL_NAME = "paint";
-const BODY_COLOR: [number, number, number, number] = [0, 0, 0, 1];
+function PlaneModel({ planeRef, onReady, isMobile }: PlaneModelProps) {
+  const { scene } = useGLTF("/models/business-jet.glb");
 
-/** One full loop of the road-lines background pattern (see globals.css). */
-const ROAD_PATTERN_HEIGHT = 208;
-/** Total downward travel of the road pattern across the whole pin. */
-const ROAD_TRAVEL = ROAD_PATTERN_HEIGHT * 12;
+  const prepared = useMemo(() => {
+    if (!scene) return null;
+
+    const clone = scene.clone(true);
+
+    // rotation önce (bounding box doğru ölçülsün)
+    clone.rotation.set(-Math.PI / 2, 0, Math.PI);
+
+    // ✅ Prod/dev farkını bitiren normalize
+    clone.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(clone);
+    const size = new THREE.Vector3();
+    box.getSize(size);
+
+    const maxDim = Math.max(size.x, size.y, size.z);
+
+    // ✅ Desktopta şu anki görünümüne yakın bir hedef seçtik.
+    // Eğer hala çok büyük/küçük gelirse sadece TARGET ile oynarsın.
+    const TARGET = 10;
+
+    const normalizeScale = maxDim > 0 ? TARGET / maxDim : 1;
+
+    // ✅ Desktop/mobil oranını BOZMADAN koru
+    const DESKTOP_FACTOR = 0.9;
+    const MOBILE_FACTOR = 0.75;
+
+    clone.scale.setScalar(
+      normalizeScale * (isMobile ? MOBILE_FACTOR : DESKTOP_FACTOR),
+    );
+
+    return clone;
+  }, [scene, isMobile]);
+
+  useLayoutEffect(() => {
+    if (!prepared) return;
+    onReady();
+  }, [prepared, onReady]);
+
+  if (!prepared) return null;
+  return <primitive ref={planeRef} object={prepared} />;
+}
 
 export default function PlaneOutro() {
   const { t } = useLanguage();
   const sectionRef = useRef<HTMLElement | null>(null);
-  const modelViewerRef = useRef<ModelViewerElement | null>(null);
-  const roadRef = useRef<HTMLDivElement | null>(null);
+  const planeRef = useRef<THREE.Group | null>(null);
   const leftTextRef = useRef<HTMLDivElement | null>(null);
   const rightTextRef = useRef<HTMLDivElement | null>(null);
   const bgFadeRef = useRef<HTMLDivElement | null>(null);
 
-  // <model-viewer> registers itself as a custom element on import, which
-  // touches window/customElements — it must only ever load in the browser,
-  // never during Next's server render.
-  const [modelViewerReady, setModelViewerReady] = useState(false);
-  useEffect(() => {
-    let cancelled = false;
-    import("@google/model-viewer").then(() => {
-      if (!cancelled) setModelViewerReady(true);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const [isPlaneReady, setIsPlaneReady] = useState(false);
 
   const [isMobile, setIsMobile] = useState(false);
   useLayoutEffect(() => {
@@ -74,58 +88,27 @@ export default function PlaneOutro() {
     return () => mq.removeEventListener?.("change", update);
   }, []);
 
-  // Camera is set once (and again if the mobile breakpoint flips) and never
-  // touched by scroll — no orbit tween, no auto-rotate.
-  useLayoutEffect(() => {
-    if (!modelViewerReady) return;
-    const mv = modelViewerRef.current;
-    if (!mv) return;
-    const radius = isMobile ? MOBILE_FIXED_RADIUS : FIXED_RADIUS;
-    mv.cameraOrbit = `${FIXED_AZIMUTH}deg 0deg ${radius}%`;
-  }, [modelViewerReady, isMobile]);
-
-  // Body paint -> black, applied once the GLB has actually loaded (the
-  // scene-graph Model API is only populated after model-viewer's `load`
-  // event). Untouched on re-render; only the "paint" material is recoloured.
-  useEffect(() => {
-    if (!modelViewerReady) return;
-    const mv = modelViewerRef.current;
-    if (!mv) return;
-
-    const applyBodyColor = () => {
-      const materials = mv.model?.materials ?? [];
-      const paint = materials.find((m) =>
-        m.name.toLowerCase().includes(BODY_MATERIAL_NAME),
-      );
-      paint?.pbrMetallicRoughness.setBaseColorFactor(BODY_COLOR);
-    };
-
-    if (mv.loaded) applyBodyColor();
-    mv.addEventListener("load", applyBodyColor);
-    return () => mv.removeEventListener("load", applyBodyColor);
-  }, [modelViewerReady]);
-
   useLayoutEffect(() => {
     if (!sectionRef.current) return;
-    if (!modelViewerReady) return;
+    if (!isPlaneReady) return;
+    if (!planeRef.current) return;
+
+    const START_OFFSET = -18;
+    const END_OFFSET = 12;
 
     const ctx = gsap.context(() => {
-      const road = { offset: 0 };
-      const syncRoad = () => {
-        if (roadRef.current)
-          roadRef.current.style.backgroundPositionY = `${road.offset.toFixed(1)}px`;
-      };
+      // start pose
+      planeRef.current!.position.y = BASE_Y + START_OFFSET;
 
       if (leftTextRef.current)
         gsap.set(leftTextRef.current, { y: 80, opacity: 0 });
       if (rightTextRef.current)
         gsap.set(rightTextRef.current, { y: 80, opacity: 0 });
-      syncRoad();
 
-      const toRoadOffset = gsap.quickTo(road, "offset", {
-        duration: 0.4,
-        ease: "power2.out",
-        onUpdate: syncRoad,
+      const toPlaneY = gsap.quickTo(planeRef.current!.position, "y", {
+        duration: 0.9,
+        ease: "power3.out",
+        overwrite: true,
       });
 
       const toLeftY = leftTextRef.current
@@ -171,7 +154,7 @@ export default function PlaneOutro() {
       const st = ScrollTrigger.create({
         trigger: sectionRef.current!,
         start: "top top",
-        end: "+=90%",
+        end: "+=180%",
         pin: true,
         pinSpacing: true,
         anticipatePin: 1,
@@ -180,9 +163,12 @@ export default function PlaneOutro() {
         onUpdate: (self) => {
           const p = self.progress; // 0..1
 
-          // The van stays put; the road slides down beneath it the whole
-          // way through the pin, in step with scroll.
-          toRoadOffset(gsap.utils.interpolate(0, ROAD_TRAVEL, p));
+          const targetY = gsap.utils.interpolate(
+            BASE_Y + START_OFFSET,
+            BASE_Y + END_OFFSET,
+            p,
+          );
+          toPlaneY(targetY);
 
           const leftP = gsap.utils.clamp(0, 1, (p - 0.08) / 0.2);
           if (toLeftY) toLeftY(gsap.utils.interpolate(80, 0, leftP));
@@ -211,7 +197,13 @@ export default function PlaneOutro() {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, [modelViewerReady]);
+  }, [isPlaneReady]);
+
+  // Kamera: aynen korunuyor
+  const cameraPosition = isMobile
+    ? ([0, 5.2, 26] as const)
+    : ([0, 4.4, 15] as const);
+  const cameraFov = isMobile ? 42 : 28;
 
   return (
     <section
@@ -235,23 +227,25 @@ export default function PlaneOutro() {
           <h2>{t("Havalimanı", "Airport")}</h2>
         </div>
 
-        <div className="road-lines" ref={roadRef} aria-hidden />
-
-        <div className="model-viewer-wrap">
-          {modelViewerReady && (
-            <model-viewer
-              ref={modelViewerRef as React.RefObject<HTMLElement>}
-              src={MODEL_PATH}
-              alt={t("Mercedes Vito VIP transfer aracı", "Mercedes Vito VIP transfer vehicle")}
-              camera-orbit={`${FIXED_AZIMUTH}deg 0deg ${isMobile ? MOBILE_FIXED_RADIUS : FIXED_RADIUS}%`}
-              field-of-view="28deg"
-              interaction-prompt="none"
-              loading="eager"
-              reveal="auto"
+        <Canvas
+          className="plane-canvas"
+          dpr={[1, 1.5]}
+          camera={{ position: cameraPosition, fov: cameraFov }}
+        >
+          <ambientLight intensity={1.1} />
+          <directionalLight position={[6, 10, 8]} intensity={2.2} />
+          <directionalLight position={[-6, 8, 6]} intensity={1.0} />
+          <Suspense fallback={null}>
+            <PlaneModel
+              planeRef={planeRef}
+              onReady={() => setIsPlaneReady(true)}
+              isMobile={isMobile}
             />
-          )}
-        </div>
+          </Suspense>
+        </Canvas>
       </div>
     </section>
   );
 }
+
+useGLTF.preload("/models/business-jet.glb");

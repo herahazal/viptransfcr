@@ -80,7 +80,53 @@ section {
 
 .sky-container {
   position: relative;
-  height: 350svh;
+  /* Was 350svh: the old cloud photo was a uniform texture, scroll-parallaxed
+     upward across that whole height (see Hero.tsx's `skyMoveDistance`) so it
+     kept drifting believably no matter how far you scrolled. The family+van
+     photo is a one-off composition — the moment it had scrolled its own
+     height, the parallax reached past it into this element's flat
+     `background-color`, showing as a hard seam partway down the frame. A
+     one-to-one height with the viewport removes the parallax scroll
+     entirely (`skyMoveDistance` becomes 0), so the photo simply always
+     fills the frame — animated instead by the Ken Burns zoom below. */
+  height: 100svh;
+  background-color: var(--plane-bg);
+}
+
+.sky-photo {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* Ken Burns: a slow, self-contained zoom instead of the scroll-linked
+   parallax .sky-container used to provide — keeps the photo feeling alive
+   without ever moving it out of frame. `overflow: hidden` on `.sky-photo`
+   crops the extra 8% growth so it never reveals an edge. */
+.sky-photo img {
+  animation: sky-ken-burns 18s ease-in-out infinite alternate;
+}
+
+@keyframes sky-ken-burns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sky-photo img {
+    animation: none;
+  }
+}
+
+.sky-photo-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.4);
 }
 
 /* ✅ Sky'nin altına base fade (desktop için aynı bırakıldı) */
@@ -135,6 +181,21 @@ section {
 .hero-header .col:nth-child(2) {
   align-items: flex-end;
   text-align: right;
+}
+
+/* Top-left logo — `.hero-header` itself is pointer-events:none (see the
+   comment near the bottom of this file) so the click target needs its own
+   pointer-events back, same as .lang-toggle. */
+.hero-logo-link {
+  pointer-events: auto;
+  display: inline-block;
+  line-height: 0;
+}
+
+.hero-logo-image {
+  height: 46px;
+  width: auto;
+  display: block;
 }
 
 /* "Premium Transfer Hizmeti" — a quiet micro-label above the tagline,
@@ -232,6 +293,18 @@ section {
   width: 100%;
   overflow: hidden;
 }
+
+/* Uçak (business-jet.glb), react-three-fiber <Canvas> ile render ediliyor. */
+.plane-canvas {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 2;
+}
+
+/* Aşağıdaki .model-viewer-wrap / .road-lines kuralları artık kullanılmıyor
+   (Vito van sürümünden kalma) — PlaneOutro tekrar uçağa döndürüldüğü için
+   ölü kod, ama başka hiçbir yeri etkilemedikleri için bilinçli olarak
+   silinmedi; van geri gelirse hazır dururlar. */
 
 /* Vito modeli <model-viewer> ile render ediliyor (three/R3F yerine).
    Kamera SABİT (tam üstten, 0deg/0deg) ve araç ekranda hiç hareket etmiyor —
@@ -429,15 +502,23 @@ section {
 @media (max-width: 1000px) {
   .hero-header {
     padding: 1.25rem; /* desktop 2rem kalır */
+    /* Extra breathing room under the text block: the logo slot above it is
+       empty (0 height), so `align-content: space-between` had nothing to
+       push against and slammed this column against the very bottom edge —
+       label, toggle and heading all cramped together right at the screen
+       edge. A fixed bottom padding gives it real clearance instead. */
+    padding-bottom: 3rem;
     display: grid; /* flex yerine daha stabil */
     grid-template-columns: 1fr; /* tek kolon */
-    align-content: space-between;
+    align-content: end;
     gap: 1.25rem;
   }
 
   .hero-header .col {
     justify-content: flex-start;
-    gap: 0.75rem;
+    /* Was 0.75rem — the TR/EN toggle and the "Her Karşılama Özel…" heading
+       right under it read as cramped at that spacing on a phone. */
+    gap: 1.4rem;
   }
 
   /* Sağ kolon mobilde sağa yaslanıp taşıyordu -> normal akış */
@@ -459,6 +540,10 @@ section {
     font-size: 1rem;
     line-height: 1.1;
     opacity: 0.92;
+  }
+
+  .hero-logo-image {
+    height: 38px;
   }
 
   /* “Observation Mode” gibi küçük metin */
@@ -655,6 +740,29 @@ section {
 
   .hero-gallery-stage {
     height: min(40svh, 340px);
+    /* Only ~2.2 cards fit a phone's width, and this carousel's position is
+       scroll-linked rather than snapped to a card — wherever a visitor's
+       scroll happens to settle, it can land mid-transition between two
+       cards, neither centred. A wide, aggressive fade (not just a thin edge
+       vignette) keeps that from reading as broken at any scroll position:
+       only the middle ~1/4 of the stage stays fully opaque, so there's
+       always one clearly "in focus" card no matter where the neighbours
+       land, and they read as an intentional soft glimpse rather than a
+       competing, equally-sharp second card. */
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      #000 38%,
+      #000 62%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      #000 38%,
+      #000 62%,
+      transparent 100%
+    );
   }
 
   .hero-gallery-static figure {
@@ -720,6 +828,19 @@ section {
      .hero-header .col:nth-child(2) > div:first-child > p above. */
   opacity: 0.55;
   margin: 0 0 0.6rem;
+}
+
+/* Logo replaces the old "My VIP Transfer" / "PREMIUM TRANSFER HİZMETİ" text
+   pair — the artwork already contains both lines, see the PNG itself. */
+.site-loader-logo-link {
+  display: inline-block;
+  margin-bottom: 0.6rem;
+}
+
+.site-loader-logo {
+  width: clamp(160px, 22vw, 220px);
+  height: auto;
+  display: block;
 }
 
 .site-loader-track {
@@ -1311,5 +1432,21 @@ section {
     bottom: auto;
     top: 4%;
     height: calc(50% - 110px - 4%);
+    /* On a phone this band's width (52% of the section, same as desktop) was
+       almost exactly the van's own on-screen width, leaving no clearance to
+       either side — so instead of reading as lane markings running past the
+       car, the whole grey band sat squarely behind the windshield/roof glass
+       (which is semi-transparent, like the real material) and showed through
+       it as a jarring flat block. Narrower and softer here reads as a thin
+       glimpse of road through the glass rather than a broken graphic. */
+    width: min(34%, 150px);
+    background-image: repeating-linear-gradient(
+      to top,
+      rgba(15, 15, 15, 0.3) 0px,
+      rgba(15, 15, 15, 0.3) 22px,
+      transparent 22px,
+      transparent 58px
+    );
+    background-size: 100% 116px;
   }
 }

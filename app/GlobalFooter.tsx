@@ -55,8 +55,12 @@ export default function GlobalFooter() {
         <div className="absolute inset-0 opacity-60 [background:radial-gradient(70%_40%_at_50%_45%,rgba(255,255,255,0.10)_0%,rgba(0,0,0,0)_60%)]" />
       </div>
 
-      {/* huge background word */}
-      <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 select-none whitespace-nowrap font-[600] tracking-tight text-white/10 blur-[0.2px] [font-size:clamp(160px,28vw,440px)] max-md:top-1/2 max-md:-translate-y-[calc(50%-10px)] md:top-14 md:-translate-y-[160px]">
+      {/* huge background word — desktop/tablet only. On a phone the section
+          is barely taller than its own text, so this always landed on top
+          of either the headline or "İLETİŞİM İÇİN" / the contact lines no
+          matter where it sat vertically; hiding it below `sm` was the only
+          placement that never collides with real content. */}
+      <div className="pointer-events-none absolute left-1/2 top-14 -translate-x-1/2 -translate-y-[160px] hidden select-none whitespace-nowrap font-[600] tracking-tight text-white/10 blur-[0.2px] [font-size:clamp(160px,28vw,440px)] sm:block">
         Transfer
       </div>
 
@@ -146,6 +150,20 @@ export default function GlobalFooter() {
               <span className="h-px w-10 bg-white/30" />
               <span className="text-white/70">—</span>
             </div>
+          </div>
+        </div>
+
+        {/* Mobile globe — the desktop globe is absolutely centred over the
+            whole section (fine there: a reserved grid column keeps the text
+            clear of it), but on a phone every position that big overlay could
+            take collided with either the headline or the contact lines. This
+            is a second, independent instance that sits in NORMAL FLOW instead
+            — after the text, sized off the viewport's own width so it can
+            never outgrow the screen — so it can never overlap anything. */}
+        <div className="pointer-events-auto flex justify-center pb-12 sm:hidden">
+          <div className="relative aspect-square w-[58vw] max-w-[240px]">
+            <div className="pointer-events-none absolute inset-0 rounded-full bg-white/10 blur-2xl" />
+            <Globe className="!inset-0" />
           </div>
         </div>
       </div>

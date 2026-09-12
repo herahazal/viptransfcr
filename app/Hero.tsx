@@ -1,6 +1,8 @@
 "use client";
 
 import { useLayoutEffect, useRef } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
@@ -130,8 +132,33 @@ export default function Hero() {
       <section className="hero">
         <div className="hero-fade" ref={fadeRef} />
 
+        {/* `.sky-container` used to be a 350svh plate GSAP slid upward as the
+            Hero pin scrolled — fine for the old cloud photo (a uniform
+            texture), but the family+van photo is a one-off composition: the
+            moment it had scrolled past its own height, the parallax exposed
+            the plate's flat background colour underneath it as a hard seam.
+            It's a plain 100svh photo now (see globals.css) — always fully in
+            frame, never sliding away — animated instead by a slow, scroll-
+            independent Ken Burns zoom (`.sky-photo img`'s CSS animation). */}
         <div className="sky-container">
-          <img src="/sky.jpg" alt="" />
+          <div className="sky-photo">
+            <Image
+              src="/images/aile-vito-transfer.jpg"
+              alt={t(
+                "Bir aile bavullarıyla My VIP Transfer'in Mercedes Vito aracına doğru yürüyor",
+                "A family walks with their luggage toward a My VIP Transfer Mercedes Vito",
+              )}
+              fill
+              priority
+              sizes="100vw"
+              quality={85}
+              style={{ objectFit: "cover", objectPosition: "center 38%" }}
+            />
+            {/* Bright daylight photo under light-coloured hero type — a flat
+                dark overlay keeps the "Premium Transfer Hizmeti" label, the
+                TR/EN toggle and the tagline readable at any scroll position. */}
+            <div className="sky-photo-overlay" />
+          </div>
         </div>
 
         {/* Overlay inside the pinned hero. Sits between the clouds and the
@@ -145,9 +172,18 @@ export default function Hero() {
         </div>
 
         <div className="hero-header">
-          {/* Logo buraya gelecek — kolon boşluğu bilerek korunuyor, sağ
-              taraftaki metin bloğunun hizası bozulmasın diye. */}
-          <div className="col hero-logo-slot" />
+          <div className="col hero-logo-slot">
+            <Link href="/" className="hero-logo-link" aria-label="My VIP Transfer">
+              <Image
+                src="/images/logo/model5-koyu-kanat-pin.png"
+                alt="My VIP Transfer"
+                width={600}
+                height={460}
+                priority
+                className="hero-logo-image"
+              />
+            </Link>
+          </div>
 
           <div className="col">
             {/* Grouped in one wrapper, not two loose siblings: the column is
