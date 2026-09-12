@@ -7,6 +7,8 @@ import Lenis from "lenis";
 import HeroCircularGallery, {
   type HeroCircularGalleryHandle,
 } from "./HeroCircularGallery";
+import LanguageToggle from "./LanguageToggle";
+import { useLanguage } from "@/lib/i18n";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -21,13 +23,12 @@ const PIN_VIEWPORTS = 5;
 const APERTURE_VIEWPORTS = 3;
 const APERTURE_SCALE = PIN_VIEWPORTS / APERTURE_VIEWPORTS;
 
-/** Hero copy entry, remapped so it follows the gallery instead of preceding it. */
-const COPY_START = 0.78;
 /** Bottom fade into the plane section, kept clear of the gallery. */
 const FADE_START = 0.78;
 const FADE_SPAN = 0.12;
 
 export default function Hero() {
+  const { t } = useLanguage();
   const rootRef = useRef<HTMLDivElement | null>(null);
   const fadeRef = useRef<HTMLDivElement | null>(null);
   const galleryRef = useRef<HeroCircularGalleryHandle | null>(null);
@@ -64,25 +65,14 @@ export default function Hero() {
     const ctx = gsap.context(() => {
       const windowContainer = document.querySelector(".window-container");
       const skyContainer = document.querySelector(".sky-container");
-      const heroCopy = document.querySelector(".hero-copy");
       const heroHeader = document.querySelector(".hero-header");
       const hero = document.querySelector(".hero");
 
-      if (
-        !windowContainer ||
-        !skyContainer ||
-        !heroCopy ||
-        !heroHeader ||
-        !hero
-      )
-        return;
+      if (!windowContainer || !skyContainer || !heroHeader || !hero) return;
 
       const skyContainerHeight = (skyContainer as HTMLElement).offsetHeight;
       const viewportHeight = window.innerHeight;
       const skyMoveDistance = skyContainerHeight - viewportHeight;
-
-      // ✅ İlk frame flash’ini öldür: önce görünmez, sonra GSAP kontrolüne al
-      gsap.set(heroCopy, { yPercent: 100, autoAlpha: 1 });
 
       ScrollTrigger.create({
         trigger: hero,
@@ -107,18 +97,6 @@ export default function Hero() {
           // sky move — spread across the full pin so the clouds keep drifting
           // gently behind the gallery instead of freezing partway through
           gsap.set(skyContainer, { y: -progress * skyMoveDistance });
-
-          // hero copy y — now enters after the gallery has left
-          let heroCopyY: number;
-          if (progress <= COPY_START) {
-            heroCopyY = 100;
-          } else if (progress >= 1) {
-            heroCopyY = 0;
-          } else {
-            heroCopyY = 100 * (1 - (progress - COPY_START) / (1 - COPY_START));
-          }
-
-          gsap.set(heroCopy, { yPercent: heroCopyY });
 
           // fade overlay
           if (fadeRef.current) {
@@ -162,36 +140,27 @@ export default function Hero() {
             aperture the gallery shows straight through. */}
         <HeroCircularGallery ref={galleryRef} />
 
-        <div className="hero-copy">
-          <h1>
-            My VIP Transfer ile havalimanı, şehir içi ve şehirler arası
-            yolculuklarınızı profesyonel şoförler, konforlu araçlar ve 7/24
-            destek ile güvenle planlayın.
-          </h1>
-        </div>
-
         <div className="window-container">
           <img src="/window.png" alt="" />
         </div>
 
         <div className="hero-header">
-          <div className="col">
-            <h1>
-              My VIP <br />
-              Transfer
-            </h1>
-            <p>
-              Türkiye genelinde bireysel ve kurumsal müşterilere özel VIP
-              transfer çözümleri. Havalimanı karşılama, şehir içi ulaşım ve
-              özel şoförlü araç hizmetleriyle güvenle yol alın.
-            </p>
-          </div>
+          {/* Logo buraya gelecek — kolon boşluğu bilerek korunuyor, sağ
+              taraftaki metin bloğunun hizası bozulmasın diye. */}
+          <div className="col hero-logo-slot" />
 
           <div className="col">
-            <p>Premium Transfer Hizmeti</p>
-            <h1>
-              Her Karşılaşma Özel <br />
-              Her Yolculuk VIP
+            {/* Grouped in one wrapper, not two loose siblings: the column is
+                `justify-content: space-between`, and a bare 3rd child would
+                get pushed to the vertical middle instead of sitting right
+                under the label. */}
+            <div>
+              <p>{t("PREMIUM TRANSFER HİZMETİ", "PREMIUM TRANSFER SERVICE")}</p>
+              <LanguageToggle />
+            </div>
+            <h1 className="hero-tagline">
+              {t("Her Karşılama Özel", "Every Welcome Is Special")} <br />
+              {t("Her Yolculuk VIP", "Every Ride Is VIP")}
             </h1>
           </div>
         </div>
