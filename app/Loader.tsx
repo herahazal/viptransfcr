@@ -34,7 +34,7 @@ const useIsomorphicLayoutEffect =
 const CRITICAL = [
   "/images/aile-vito-transfer.jpg",
   "/window.png",
-  "/images/logo/model5-koyu-kanat-pin.png",
+  "/images/logo/logo-transparent.png",
 ];
 
 /** Never hold the page longer than this, however slow the network is. */
@@ -121,18 +121,24 @@ export default function Loader() {
   return (
     <div className={`site-loader${done ? " is-done" : ""}`} aria-hidden={done}>
       <div className="site-loader-inner">
-        {/* The logo already carries both the "My VIP Transfer" wordmark and
-            the "Premium Transfer" line, so no separate text is needed here
-            any more — see public/images/logo/model5-koyu-kanat-pin.png. */}
+        {/* The logo already carries the "My VIP Transfer" wordmark and the
+            "Her Karşılama Özel · Her Yolculuk VIP" line baked in as artwork
+            (public/images/logo/logo-transparent.png — a light-background
+            variant with dark text, background matted out to transparent
+            from the original public/images/logo/logo-acik-zemin.png), so no
+            separate text is needed here any more. This variant is only used
+            here, where it sits on the loader's own pale background — its
+            near-black text would be unreadable on Hero's dark corner, which
+            keeps the old dark-card logo. */}
         <Link href="/" className="site-loader-logo-link" aria-label="My VIP Transfer">
           <NextImage
-            src="/images/logo/model5-koyu-kanat-pin.png"
+            src="/images/logo/logo-transparent.png"
             alt={t(
-              "My VIP Transfer — Premium Transfer Hizmeti",
-              "My VIP Transfer — Premium Transfer Service",
+              "My VIP Transfer — Her Karşılama Özel, Her Yolculuk VIP",
+              "My VIP Transfer — Every Welcome Is Special, Every Ride Is VIP",
             )}
-            width={600}
-            height={460}
+            width={900}
+            height={280}
             priority
             className="site-loader-logo"
           />

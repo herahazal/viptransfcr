@@ -94,7 +94,25 @@ export default function Hero() {
           const windowScale = ap <= 0.5 ? 1 + (ap / 0.5) * 3 : 4;
 
           gsap.set(windowContainer, { scale: windowScale });
-          gsap.set(heroHeader, { scale: windowScale, z: ap * 500 });
+
+          // The header (logo, "Premium Transfer Hizmeti" + TR/EN, tagline)
+          // rides the same zoom as the window, reaching 4x scale by the
+          // time the aperture finishes opening (progress ~0.3) — and then
+          // STAYS at 4x for the rest of the Hero, including the whole
+          // gallery-revealed section. With the logo enlarged to 240px that
+          // 4x became a ~960px shape whose (huge, off-canvas) bounding box
+          // still clips into a narrow phone viewport, bleeding a giant
+          // blurred corner of it across the gallery cards. Fading the
+          // header out just before the aperture completes removes it
+          // before it ever reaches a size that can do that — it isn't
+          // meant to still be there once the gallery takes over anyway.
+          const headerOpacity = 1 - gsap.utils.clamp(0, 1, (progress - 0.15) / 0.15);
+          gsap.set(heroHeader, {
+            scale: windowScale,
+            z: ap * 500,
+            opacity: headerOpacity,
+            visibility: headerOpacity > 0.01 ? "visible" : "hidden",
+          });
 
           // sky move — spread across the full pin so the clouds keep drifting
           // gently behind the gallery instead of freezing partway through
@@ -171,34 +189,48 @@ export default function Hero() {
           <img src="/window.png" alt="" />
         </div>
 
+        {/* Grid, not flex: the logo (hero-logo-slot) and the meta block
+            (hero-header-meta — "PREMIUM TRANSFER HİZMETİ" + TR/EN) are now
+            two independent grid items sharing row 1, `align-items: center`
+            — so they line up on their shared vertical centre no matter how
+            tall the logo itself is. The tagline sits in its own row,
+            pinned to the bottom. Previously the logo and the meta block
+            were each the sole/first child of their own full-height flex
+            column, which only ever lined up their TOPS, not their centres —
+            fine while the logo was small, but once it was enlarged its
+            centre drifted well below the (much shorter) meta block's. */}
         <div className="hero-header">
-          <div className="col hero-logo-slot">
+          <div className="hero-logo-slot">
+            {/* Emblem only — the dark rounded-square card the monogram used
+                to sit on (public/images/logo/logo-monogram-favicon.png) is
+                matted out to transparent (logo-monogram-transparent.png),
+                so it's just the gold "M" glyph now, floating directly on
+                the Hero photo like the rest of this corner. Also cropped
+                tight to the glyph's own bounding box (267×177, was a
+                512×512 canvas with ~34% empty margin top and bottom) —
+                otherwise even center-alignment would be off, centred on a
+                box padded well below the glyph's own visual weight. */}
             <Link href="/" className="hero-logo-link" aria-label="My VIP Transfer">
               <Image
-                src="/images/logo/model5-koyu-kanat-pin.png"
+                src="/images/logo/logo-monogram-transparent.png"
                 alt="My VIP Transfer"
-                width={600}
-                height={460}
+                width={267}
+                height={177}
                 priority
                 className="hero-logo-image"
               />
             </Link>
           </div>
 
-          <div className="col">
-            {/* Grouped in one wrapper, not two loose siblings: the column is
-                `justify-content: space-between`, and a bare 3rd child would
-                get pushed to the vertical middle instead of sitting right
-                under the label. */}
-            <div>
-              <p>{t("PREMIUM TRANSFER HİZMETİ", "PREMIUM TRANSFER SERVICE")}</p>
-              <LanguageToggle />
-            </div>
-            <h1 className="hero-tagline">
-              {t("Her Karşılama Özel", "Every Welcome Is Special")} <br />
-              {t("Her Yolculuk VIP", "Every Ride Is VIP")}
-            </h1>
+          <div className="hero-header-meta">
+            <p>{t("PREMIUM TRANSFER HİZMETİ", "PREMIUM TRANSFER SERVICE")}</p>
+            <LanguageToggle />
           </div>
+
+          <h1 className="hero-tagline">
+            {t("Her Karşılama Özel", "Every Welcome Is Special")} <br />
+            {t("Her Yolculuk VIP", "Every Ride Is VIP")}
+          </h1>
         </div>
       </section>
 
