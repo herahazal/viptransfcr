@@ -19,7 +19,8 @@ const DEFAULT_CONFIG: COBEOptions = {
   mapSamples: 16000,
   mapBrightness: 1.0,
   baseColor: [1, 1, 1],
-  markerColor: [251 / 255, 100 / 255, 21 / 255],
+  // Brand gold (#c9a45c), matching the logo — was a generic orange.
+  markerColor: [201 / 255, 164 / 255, 92 / 255],
   glowColor: [0.85, 0.85, 0.85],
   markers: [
     { location: [14.5995, 120.9842], size: 0.03 },

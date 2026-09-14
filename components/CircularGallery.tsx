@@ -656,7 +656,14 @@ class App {
       }
     ];
     const galleryItems = items && items.length ? items : defaultItems;
-    this.mediasImages = galleryItems.concat(galleryItems);
+    // Was `galleryItems.concat(galleryItems)` — doubling the list (6 items
+    // -> 12 planes) so the wrap-around recycling had more distance to work
+    // with. The site only ever passes 6 curated cards now, and doubling
+    // them made the carousel read as showing more than 6/duplicated cards.
+    // The wrap-around math (Media.update()'s isBefore/isAfter recycling)
+    // doesn't require the extra copies — it recycles a plane by shifting it
+    // by the full track width regardless of how many items that track has.
+    this.mediasImages = galleryItems;
     this.medias = this.mediasImages.map((data, index) => {
       return new Media({
         geometry: this.planeGeometry,

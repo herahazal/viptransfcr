@@ -7,14 +7,32 @@
 :root {
   --light: #fff;
   --dark: #0f0f0f;
-  --plane-bg: #cfe6ea;
+  --plane-bg: #fff;
   --plane-text-color: #0f0f0f; /* footer'a yaklaşınca GSAP ile #ffffff yapılıyor */
+  /* Brand gold — sampled straight from the logo's monogram
+     (public/images/logo/logo-monogram-transparent.png). Used for CTAs and
+     accents across the site's dark ("editorial") sections — Hizmetler,
+     Kurumsal, Rezervasyon, Footer. The Hero/Loader/PlaneOutro's light
+     "sky"/plane scenes are deliberately left untouched (still white/gold,
+     no dark accents added there). */
+  --gold: #c9a45c;
+  --gold-dim: #a5824a;
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+html,
+body {
+  /* Defensive: this audit found no active horizontal overflow, but the site
+     is full of full-bleed decorative elements (the footer's giant
+     "Transfer" word, oversized background shapes, scaled hero art) that
+     are one future tweak away from poking past the viewport edge. This
+     guarantees a stray one never turns into a horizontal scrollbar. */
+  overflow-x: hidden;
 }
 
 body {
@@ -141,7 +159,7 @@ section {
   background: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 0) 0%,
-    rgba(207, 230, 234, 1) 100%
+    rgba(255, 255, 255, 1) 100%
   );
 }
 
@@ -160,27 +178,56 @@ section {
   height: 100svh;
 }
 
+/* Grid: row 1 holds the logo and the meta block (label + TR/EN) side by
+   side, `align-items: center` lining them up on a shared vertical centre —
+   this is what actually keeps them aligned regardless of the logo's own
+   height. Row 2 (1fr, i.e. "the rest of the height") holds the tagline,
+   pinned to its bottom. */
 .hero-header {
   height: 100svh;
-  padding: 2rem;
-  display: flex;
+  /* Top padding only, cut from 2rem to 0.9rem: the logo/meta row is
+     top-aligned within this box (grid-template-rows: auto 1fr), so
+     whatever sits here directly sets their distance from the viewport's
+     own top edge. Left/right/bottom padding (still 2rem) are untouched —
+     bottom in particular is what gives the tagline its own clearance. */
+  padding: 0.9rem 2rem 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr;
+  column-gap: 2rem;
   transform-style: preserve-3d;
 }
 
-.hero-header .col {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+.hero-logo-slot {
+  grid-column: 1;
+  grid-row: 1;
+  /* Was `center`: with the logo (240px) far taller than the meta block
+     (~65px), centering them on a shared middle put the meta block's own
+     TOP edge well below the logo's — matched centres, mismatched tops.
+     `start` lines up both blocks' top edges instead. */
+  align-self: start;
+  justify-self: start;
 }
 
-.hero-header .col p {
-  width: 50%;
-}
-
-.hero-header .col:nth-child(2) {
-  align-items: flex-end;
+.hero-header-meta {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+  justify-self: end;
   text-align: right;
+  /* Pure `start` (top edges matched exactly) read as sitting above the
+     logo's own visual centre. This nudges it back down by ~half of the
+     ~91px that top-aligning had just moved it up by, splitting the
+     difference between "top-matched" and "centre-matched". Desktop only —
+     cancelled below for the mobile stacked layout. */
+  margin-top: 45px;
+}
+
+.hero-tagline {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: end;
+  justify-self: end;
 }
 
 /* Top-left logo — `.hero-header` itself is pointer-events:none (see the
@@ -193,7 +240,11 @@ section {
 }
 
 .hero-logo-image {
-  height: 46px;
+  /* Kept at the requested +300% size (240px) — the source PNG is cropped
+     tight to the glyph itself (see Hero.tsx), so this height lands on the
+     glyph's own edges rather than on mostly-empty padding around it, which
+     would throw off the centre .hero-header now aligns it on. */
+  height: 240px;
   width: auto;
   display: block;
 }
@@ -202,7 +253,7 @@ section {
    same register as the uppercase/tracked labels used elsewhere on the site
    (.editorial-label, .hero-gallery-label) — including their font, the
    site's one display serif, so nothing here reads as a different typeface. */
-.hero-header .col:nth-child(2) > div:first-child > p {
+.hero-header-meta > p {
   width: auto;
   font-size: 0.8rem;
   font-weight: 600;
@@ -272,6 +323,7 @@ section {
   font-size: clamp(1.8rem, 2.6vw, 2.75rem);
   line-height: 1.05;
   letter-spacing: -0.01em;
+  text-align: right;
   text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
 }
 
@@ -416,9 +468,9 @@ section {
 
   background: linear-gradient(
     to bottom,
-    rgba(207, 230, 234, 0) 0%,
-    rgba(207, 230, 234, 0.55) 45%,
-    rgba(207, 230, 234, 1) 100%
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.55) 45%,
+    rgba(255, 255, 255, 1) 100%
   );
 
   filter: blur(14px);
@@ -464,9 +516,9 @@ section {
       ),
       linear-gradient(
         to bottom,
-        rgba(207, 230, 234, 0) 0%,
-        rgba(207, 230, 234, 0.65) 55%,
-        rgba(207, 230, 234, 1) 100%
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.65) 55%,
+        rgba(255, 255, 255, 1) 100%
       );
     filter: blur(10px);
     transform: translateY(10px);
@@ -502,28 +554,44 @@ section {
 @media (max-width: 1000px) {
   .hero-header {
     padding: 1.25rem; /* desktop 2rem kalır */
-    /* Extra breathing room under the text block: the logo slot above it is
-       empty (0 height), so `align-content: space-between` had nothing to
-       push against and slammed this column against the very bottom edge —
-       label, toggle and heading all cramped together right at the screen
-       edge. A fixed bottom padding gives it real clearance instead. */
+    /* Extra breathing room under the text block, same reasoning as before:
+       without it, logo + label + toggle + heading read as cramped right
+       against the bottom edge on a phone. */
     padding-bottom: 3rem;
     display: grid; /* flex yerine daha stabil */
-    grid-template-columns: 1fr; /* tek kolon */
+    grid-template-columns: 1fr; /* tek kolon: logo, meta, tagline alt alta */
+    grid-template-rows: auto auto auto;
     align-content: end;
-    gap: 1.25rem;
+    /* Was 1.25rem outer + 1.4rem inner (two different gaps, from the old
+       nested-column structure) — one row-gap now that all three are flat
+       grid siblings. */
+    row-gap: 1.4rem;
   }
 
-  .hero-header .col {
-    justify-content: flex-start;
-    /* Was 0.75rem — the TR/EN toggle and the "Her Karşılama Özel…" heading
-       right under it read as cramped at that spacing on a phone. */
-    gap: 1.4rem;
+  /* Masaüstünde row 1'i paylaşıp merkezde hizalanıyorlardı — mobilde tek
+     sütunda üst üste dizildikleri için o düzenin hepsini sıfırla. */
+  .hero-logo-slot,
+  .hero-header-meta,
+  .hero-tagline {
+    grid-column: 1;
+    align-self: auto;
+    justify-self: start;
   }
 
-  /* Sağ kolon mobilde sağa yaslanıp taşıyordu -> normal akış */
-  .hero-header .col:nth-child(2) {
-    align-items: flex-start;
+  .hero-logo-slot {
+    grid-row: 1;
+  }
+
+  .hero-header-meta {
+    grid-row: 2;
+    text-align: left;
+    /* Desktop-only nudge (see the base rule) — mobile stacks logo/meta/
+       tagline with its own row-gap, this would just add an extra gap. */
+    margin-top: 0;
+  }
+
+  .hero-tagline {
+    grid-row: 3;
     text-align: left;
   }
 
@@ -543,11 +611,18 @@ section {
   }
 
   .hero-logo-image {
-    height: 38px;
+    height: 192px;
+  }
+
+  /* Touch target: was ~32px tall, under the ~44px minimum comfortable tap
+     size. min-height (not padding) so it grows without shifting the
+     "TR / EN" text off-centre — it's already align-items:center. */
+  .lang-toggle {
+    min-height: 44px;
   }
 
   /* “Observation Mode” gibi küçük metin */
-  .hero-header .col:nth-child(2) > div:first-child > p {
+  .hero-header-meta > p {
     font-size: 0.95rem;
     opacity: 0.9;
   }
@@ -652,9 +727,11 @@ section {
      vertically centred block, so the only way to keep real clearance above it
      is to pin the gallery to the upper band. It never moves after that. */
   justify-content: flex-start;
-  /* The 33px compensates for the label that used to sit above the stage, so
-     removing it left the cards at exactly the same height. */
-  padding-top: calc(3svh + 33px);
+  /* The 33px compensates for the label that used to sit above the stage,
+     the (3svh →) 9svh on top of it is extra clearance from the aperture/
+     window art above — the gallery card stage was landing close enough to
+     it to read as overlapping. */
+  padding-top: calc(9svh + 33px);
   gap: 1.1rem;
 
   /* Pre-entry state: parked below the viewport, never faded. Hero slides it
@@ -792,8 +869,7 @@ section {
   align-items: center;
   justify-content: center;
 
-  /* the site's own cold blue-white, so the reveal is a continuation */
-  background: linear-gradient(180deg, #dceef2 0%, #cfe6ea 55%, #c3dee4 100%);
+  background: #fff;
   color: #12212a;
 
   opacity: 1;
@@ -825,7 +901,7 @@ section {
   font-size: 0.74rem;
   letter-spacing: 0.24em;
   /* Typed pre-capitalised in Loader.tsx, not transformed — see the note on
-     .hero-header .col:nth-child(2) > div:first-child > p above. */
+     .hero-header-meta > p above. */
   opacity: 0.55;
   margin: 0 0 0.6rem;
 }
@@ -838,13 +914,15 @@ section {
 }
 
 .site-loader-logo {
-  width: clamp(160px, 22vw, 220px);
+  width: clamp(260px, 36vw, 360px);
   height: auto;
   display: block;
 }
 
 .site-loader-track {
-  width: min(220px, 50vw);
+  /* Matches .site-loader-logo's new max width so the progress line stays
+     centred under the (now wider) logo rather than looking narrower. */
+  width: min(360px, 50vw);
   height: 1px;
   background: rgba(18, 33, 42, 0.18);
   overflow: hidden;
@@ -915,12 +993,14 @@ section {
   margin-bottom: clamp(3.5rem, 8vh, 6rem);
 }
 
-/* same micro-label as .hero-gallery-label, in the dark register */
+/* same micro-label as .hero-gallery-label, in the dark register — brand
+   gold, since this kicker opens every section on the page. */
 .editorial-label {
   font-size: 0.78rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--gold);
+  opacity: 0.85;
   margin: 0 0 1.4rem;
 }
 
@@ -950,12 +1030,13 @@ section {
   color: var(--light);
   text-decoration: none;
   padding-bottom: 0.4rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
-  transition: border-color 0.35s ease;
+  border-bottom: 1px solid rgba(201, 164, 92, 0.4);
+  transition: border-color 0.35s ease, color 0.35s ease;
 }
 
 .editorial-link:hover {
-  border-color: rgba(255, 255, 255, 0.9);
+  color: var(--gold);
+  border-color: var(--gold);
 }
 
 /* WhatsApp CTA — the brand's own green, so it reads as "this opens WhatsApp"
@@ -999,10 +1080,11 @@ section {
 .whatsapp-cta:focus-visible,
 .brief-input:focus-visible,
 .brief-submit:focus-visible {
-  outline: 1px solid rgba(255, 255, 255, 0.7);
+  outline: 1px solid var(--gold);
   outline-offset: 6px;
 }
 
+/* Primary CTA — brand gold, black text: "Kurumsal Teklif Al" and friends. */
 .editorial-button {
   display: inline-block;
   font-family: inherit;
@@ -1011,18 +1093,19 @@ section {
   text-transform: uppercase;
   text-decoration: none;
   color: #0b0b0c;
-  background: var(--light);
-  border: 1px solid var(--light);
+  background: var(--gold);
+  border: 1px solid var(--gold);
   padding: 0.95rem 1.7rem;
   cursor: pointer;
   transition:
     background 0.35s ease,
-    color 0.35s ease;
+    color 0.35s ease,
+    border-color 0.35s ease;
 }
 
 .editorial-button:hover {
   background: transparent;
-  color: var(--light);
+  color: var(--gold);
 }
 
 .editorial-button-quiet {
@@ -1032,9 +1115,9 @@ section {
 }
 
 .editorial-button-quiet:hover {
-  border-color: var(--light);
+  border-color: var(--gold);
   background: transparent;
-  color: var(--light);
+  color: var(--gold);
 }
 
 /* ---- Services ---------------------------------------------- */
@@ -1056,7 +1139,7 @@ section {
 .service-index {
   font-size: 0.85rem;
   letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(201, 164, 92, 0.55);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1134,7 +1217,7 @@ section {
 
 .brief-input:hover,
 .brief-input:focus {
-  border-bottom-color: rgba(255, 255, 255, 0.65);
+  border-bottom-color: var(--gold);
 }
 
 .brief-input:focus {
@@ -1171,18 +1254,19 @@ section {
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #0b0b0c;
-  background: var(--light);
-  border: 1px solid var(--light);
+  background: var(--gold);
+  border: 1px solid var(--gold);
   padding: 1rem 2rem;
   cursor: pointer;
   transition:
     background 0.35s ease,
-    color 0.35s ease;
+    color 0.35s ease,
+    border-color 0.35s ease;
 }
 
 .brief-submit:hover {
   background: transparent;
-  color: var(--light);
+  color: var(--gold);
 }
 
 .brief-note {
@@ -1231,7 +1315,8 @@ section {
   font-size: 0.78rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--gold);
+  opacity: 0.85;
 }
 
 .tier-note {
@@ -1262,7 +1347,8 @@ section {
   top: 0.62em;
   width: 0.5rem;
   height: 1px;
-  background: rgba(255, 255, 255, 0.35);
+  background: var(--gold);
+  opacity: 0.6;
 }
 
 .preview-list {
@@ -1407,11 +1493,11 @@ section {
   }
 
   .left-text {
-    top: calc(50% - 92px);
+    top: calc(50% - 20px);
   }
 
   .right-text {
-    top: calc(50% + 22px);
+    top: calc(50% + 70px);
   }
 
   .left-text p {
@@ -1426,6 +1512,18 @@ section {
   .model-viewer-wrap {
     inset: 0 0 auto 0;
     height: calc(50% - 110px);
+  }
+
+  /* Same problem, restored-plane version: `.plane-canvas` is a plain
+     `inset: 0` (`!important`, so this override needs it too) — the jet
+     flies straight down the screen's own centre, which is exactly where
+     the now-stacked captions sit, so its fuselage/wings were crossing
+     right through both lines of text. Confining the canvas to a top band
+     and pushing both captions below it keeps them clear the same way the
+     van's model-viewer band did. */
+  .plane-canvas {
+    inset: 0 0 auto 0 !important;
+    height: calc(50% - 40px) !important;
   }
 
   .road-lines {

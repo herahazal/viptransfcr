@@ -8,7 +8,7 @@ import { useLanguage } from "@/lib/i18n";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const PLANE_BG = "#cfe6ea";
+const PLANE_BG = "#ffffff"; // matches --plane-bg in globals.css
 const FOOTER_BG = "#0b0b0c";
 
 export default function GlobalFooter() {
@@ -90,13 +90,13 @@ export default function GlobalFooter() {
           <div className="flex flex-col gap-4 text-xs text-white/60 md:flex-row md:items-center md:justify-between">
             <div>{t("©2026 MY VIP TRANSFER. TÜM HAKLARI SAKLIDIR", "©2026 MY VIP TRANSFER. ALL RIGHTS RESERVED")}</div>
             <div className="flex flex-wrap gap-6">
-              <a className="hover:text-white" href="#privacy">
+              <a className="hover:text-[#c9a45c]" href="#privacy">
                 {t("GİZLİLİK", "PRIVACY")}
               </a>
-              <a className="hover:text-white" href="#colophon">
+              <a className="hover:text-[#c9a45c]" href="#colophon">
                 {t("SSS", "FAQ")}
               </a>
-              <a className="hover:text-white" href="#github">
+              <a className="hover:text-[#c9a45c]" href="#github">
                 WHATSAPP
               </a>
             </div>
@@ -106,23 +106,23 @@ export default function GlobalFooter() {
         {/* nav + brand */}
         <div className="pointer-events-auto flex flex-col items-start justify-between gap-6 pt-4 sm:flex-row sm:gap-10">
           <nav className="flex flex-wrap gap-8 text-sm text-white/80">
-            <a className="hover:text-white" href="#work">
+            <a className="hover:text-[#c9a45c]" href="#work">
               {t("Anasayfa", "Home")}
             </a>
-            <a className="hover:text-white" href="#services">
+            <a className="hover:text-[#c9a45c]" href="#services">
               {t("Hizmetler", "Services")}
             </a>
-            <a className="hover:text-white" href="#community">
+            <a className="hover:text-[#c9a45c]" href="#community">
               {t("Kurumsal", "Corporate")}
             </a>
-            <a className="hover:text-white" href="#global">
+            <a className="hover:text-[#c9a45c]" href="#global">
               {t("İletişim", "Contact")}
             </a>
           </nav>
           <div className="text-left text-sm text-white/80 sm:text-right">
             <div className="font-medium text-white">My VIP Transfer</div>
             <div className="mt-1">{t("VIP Transfer Hizmetleri", "VIP Transfer Services")}</div>
-            <a className="hover:text-white" href="#start">
+            <a className="text-[#c9a45c] hover:text-[#e0bd7c]" href="#start">
               {t("Teklif Al", "Get a Quote")}
             </a>
           </div>
@@ -147,8 +147,8 @@ export default function GlobalFooter() {
               <div>{t("Rezervasyon · Kurumsal Teklif", "Reservation · Corporate Quote")}</div>
             </div>
             <div className="mt-7 flex items-center gap-3 lg:justify-end">
-              <span className="h-px w-10 bg-white/30" />
-              <span className="text-white/70">—</span>
+              <span className="h-px w-10 bg-[#c9a45c]/60" />
+              <span className="text-[#c9a45c]/80">—</span>
             </div>
           </div>
         </div>
