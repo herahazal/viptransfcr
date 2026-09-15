@@ -542,75 +542,80 @@ section {
 
 /* ✅ Mobile: window içindeki yazılar taşmasın (DESKTOP bozulmaz) */
 @media (max-width: 1000px) {
+  /* Four independent corners instead of a grid/band — each element pinned
+     directly to the screen's own edges, in the (already dark-ish) corner
+     gaps of the window artwork, so none of them ever sits on top of the
+     photo itself. No new elements: `.hero-header-meta` (which used to hold
+     both the label and the TR/EN toggle together) is reset to `static` so
+     it's no longer a positioning root — its two children are positioned
+     independently instead, each relative to `.hero-header` itself. */
   .hero-header {
-    padding: 1.25rem; /* desktop 2rem kalır */
-    /* Extra breathing room under the text block, same reasoning as before:
-       without it, logo + label + toggle + heading read as cramped right
-       against the bottom edge on a phone. */
-    padding-bottom: 3rem;
-    display: grid; /* flex yerine daha stabil */
-    grid-template-columns: 1fr; /* tek kolon: logo, meta, tagline alt alta */
-    grid-template-rows: auto auto auto;
-    align-content: end;
-    /* Was 1.25rem outer + 1.4rem inner (two different gaps, from the old
-       nested-column structure) — one row-gap now that all three are flat
-       grid siblings. */
-    row-gap: 1.4rem;
-  }
-
-  /* Masaüstünde row 1'i paylaşıp merkezde hizalanıyorlardı — mobilde tek
-     sütunda üst üste dizildikleri için o düzenin hepsini sıfırla. */
-  .hero-logo-slot,
-  .hero-header-meta,
-  .hero-tagline {
-    grid-column: 1;
-    align-self: auto;
-    justify-self: start;
+    padding: 1.25rem;
+    display: block;
   }
 
   .hero-logo-slot {
-    grid-row: 1;
+    position: absolute;
+    left: 1.25rem;
+    bottom: 1.25rem;
   }
 
   .hero-header-meta {
-    grid-row: 2;
-    text-align: left;
+    position: static;
+  }
+
+  .hero-header-meta > p {
+    position: absolute;
+    right: 1.25rem;
+    bottom: 5.75rem;
+    width: auto;
+    text-align: right;
+  }
+
+  .lang-toggle {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
   }
 
   .hero-tagline {
-    grid-row: 3;
-    text-align: left;
+    position: absolute;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    text-align: right;
   }
 
-  /* Metinleri mobile’a uygun küçült */
+  /* Metinleri mobile’a uygun küçült — ~%45-50, köşedeki dar alana sığsın */
   .hero-header h1 {
-    font-size: clamp(2.2rem, 8.5vw, 3.2rem);
-    line-height: 0.9;
+    font-size: clamp(1.1rem, 4.2vw, 1.6rem);
+    line-height: 0.95;
     letter-spacing: -0.02em;
   }
 
   .hero-header p {
-    width: 100% !important; /* desktop 50% kuralını ez */
-    max-width: 28ch; /* çok uzamasın */
-    font-size: 1rem;
+    width: auto !important; /* desktop 50% kuralını ez */
+    max-width: 20ch;
+    font-size: 0.5rem;
     line-height: 1.1;
     opacity: 0.92;
   }
 
   .hero-logo-image {
-    height: 67px;
+    height: 32px;
   }
 
-  /* Touch target: was ~32px tall, under the ~44px minimum comfortable tap
-     size. min-height (not padding) so it grows without shifting the
-     "TR / EN" text off-centre — it's already align-items:center. */
+  /* Dokunma alanı ~44px'ten ~22px'e küçüldü — köşeye sığması için bilinçli
+     bir ödün; ayrıca büyütülmesi istenirse tek satır. */
   .lang-toggle {
-    min-height: 44px;
+    min-height: 22px;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.42rem;
+    letter-spacing: 0.12em;
   }
 
   /* “Observation Mode” gibi küçük metin */
   .hero-header-meta > p {
-    font-size: 0.95rem;
+    font-size: 0.5rem;
     opacity: 0.9;
   }
 }
