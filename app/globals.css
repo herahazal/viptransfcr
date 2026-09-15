@@ -178,6 +178,34 @@ section {
   height: 100svh;
 }
 
+/* Mobile only — desktop's full-bleed window/photo (100% / 100svh) above are
+   untouched. Shrinks and centres both the window-frame graphic and the
+   photo layer behind it TOGETHER, by the same amount, so the photo still
+   sits exactly within the window's hole (nothing about the photo's own
+   crop/object-fit changes, only the box it's cover-fit into). Left without
+   .sky-photo also shrinking, the frame would float smaller on screen while
+   the now-uncovered full-size photo bled out to the edges behind it. The
+   newly-exposed margin around both needs its own colour to read as a dark
+   frame rather than a gap — .sky-container's background-color (normally
+   --plane-bg, shared with the PlaneOutro/Loader scenes) is overridden here
+   only. */
+@media (max-width: 1000px) {
+  .window-container,
+  .sky-photo {
+    width: 87%;
+    height: 87svh;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+  }
+
+  .sky-container {
+    background-color: #0b0b0c;
+  }
+}
+
 /* Grid: row 1 holds the logo and the meta block (label + TR/EN) side by
    side, `align-items: center` lining them up on a shared vertical centre —
    this is what actually keeps them aligned regardless of the logo's own
