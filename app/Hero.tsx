@@ -64,6 +64,16 @@ export default function Hero() {
     gsap.ticker.add(raf);
     gsap.ticker.lagSmoothing(0);
 
+    // Mobile only: the window/header "aperture" zoom (below) scales up to 4x
+    // by ~30% into the pin — on a phone that was enough to push the window
+    // frame's own border past the viewport edges within the first couple of
+    // scroll ticks, leaving a plain full-bleed rectangle with no frame and
+    // no dark margin around it for the rest of the Hero. Capping how far
+    // `ap` is allowed to drive the zoom keeps the frame (and its margin)
+    // visible throughout. Desktop's `ap`/`windowScale` are untouched.
+    const isMobile = window.matchMedia("(max-width: 1000px)").matches;
+    const MOBILE_AP_CAP = 0.02; // -> windowScale caps at 1.12x instead of 4x
+
     const ctx = gsap.context(() => {
       const windowContainer = document.querySelector(".window-container");
       const skyContainer = document.querySelector(".sky-container");
@@ -88,7 +98,8 @@ export default function Hero() {
           const progress = self.progress;
 
           // Original 3-viewport aperture curve, replayed over the first 3 of 5.
-          const ap = Math.min(1, progress * APERTURE_SCALE);
+          const rawAp = Math.min(1, progress * APERTURE_SCALE);
+          const ap = isMobile ? Math.min(rawAp, MOBILE_AP_CAP) : rawAp;
 
           // window scale — unchanged formula, unchanged absolute rate
           const windowScale = ap <= 0.5 ? 1 + (ap / 0.5) * 3 : 4;
