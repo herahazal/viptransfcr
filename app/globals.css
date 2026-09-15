@@ -201,26 +201,20 @@ section {
 .hero-logo-slot {
   grid-column: 1;
   grid-row: 1;
-  /* Was `center`: with the logo (240px) far taller than the meta block
-     (~65px), centering them on a shared middle put the meta block's own
-     TOP edge well below the logo's — matched centres, mismatched tops.
-     `start` lines up both blocks' top edges instead. */
-  align-self: start;
+  /* True centre, not a hand-tuned offset: both this and .hero-header-meta
+     sit on the row's actual vertical centre, so this stays correct however
+     the logo or the meta block's own size changes — no pixel value to
+     re-tune by hand each time either one does. */
+  align-self: center;
   justify-self: start;
 }
 
 .hero-header-meta {
   grid-column: 2;
   grid-row: 1;
-  align-self: start;
+  align-self: center;
   justify-self: end;
   text-align: right;
-  /* Pure `start` (top edges matched exactly) read as sitting above the
-     logo's own visual centre. This nudges it back down by ~half of the
-     ~91px that top-aligning had just moved it up by, splitting the
-     difference between "top-matched" and "centre-matched". Desktop only —
-     cancelled below for the mobile stacked layout. */
-  margin-top: 45px;
 }
 
 .hero-tagline {
@@ -240,9 +234,7 @@ section {
 }
 
 .hero-logo-image {
-  /* -50% from the 240px it had grown to — was reading too big/heavy on a
-     real screen (Vercel), not just the dev viewport it had been tuned on. */
-  height: 120px;
+  height: 240px;
   width: auto;
   display: block;
 }
@@ -583,9 +575,6 @@ section {
   .hero-header-meta {
     grid-row: 2;
     text-align: left;
-    /* Desktop-only nudge (see the base rule) — mobile stacks logo/meta/
-       tagline with its own row-gap, this would just add an extra gap. */
-    margin-top: 0;
   }
 
   .hero-tagline {
@@ -609,7 +598,7 @@ section {
   }
 
   .hero-logo-image {
-    height: 96px;
+    height: 192px;
   }
 
   /* Touch target: was ~32px tall, under the ~44px minimum comfortable tap
