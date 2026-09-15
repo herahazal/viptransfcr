@@ -234,7 +234,7 @@ section {
 }
 
 .hero-logo-image {
-  height: 240px;
+  height: 120px;
   width: auto;
   display: block;
 }
@@ -598,7 +598,7 @@ section {
   }
 
   .hero-logo-image {
-    height: 192px;
+    height: 96px;
   }
 
   /* Touch target: was ~32px tall, under the ~44px minimum comfortable tap
