@@ -240,11 +240,9 @@ section {
 }
 
 .hero-logo-image {
-  /* Kept at the requested +300% size (240px) — the source PNG is cropped
-     tight to the glyph itself (see Hero.tsx), so this height lands on the
-     glyph's own edges rather than on mostly-empty padding around it, which
-     would throw off the centre .hero-header now aligns it on. */
-  height: 240px;
+  /* -50% from the 240px it had grown to — was reading too big/heavy on a
+     real screen (Vercel), not just the dev viewport it had been tuned on. */
+  height: 120px;
   width: auto;
   display: block;
 }
@@ -611,7 +609,7 @@ section {
   }
 
   .hero-logo-image {
-    height: 192px;
+    height: 96px;
   }
 
   /* Touch target: was ~32px tall, under the ~44px minimum comfortable tap
