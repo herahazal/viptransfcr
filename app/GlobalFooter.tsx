@@ -166,7 +166,7 @@ export default function GlobalFooter() {
                 above), scaled down to the phone's own width so it reads as
                 a background decoration around the globe instead of
                 overflowing or colliding with the text above it. */}
-            <div className="pointer-events-none absolute inset-0 flex select-none items-center justify-center overflow-hidden whitespace-nowrap font-[600] tracking-tight text-white/10 blur-[0.2px] [font-size:clamp(56px,26vw,150px)]">
+            <div className="pointer-events-none absolute inset-0 flex -translate-y-[18%] select-none items-center justify-center overflow-hidden whitespace-nowrap font-[600] tracking-tight text-white/10 blur-[0.2px] [font-size:clamp(56px,26vw,150px)]">
               Transfer
             </div>
             <div className="relative aspect-square w-[58vw] max-w-[240px]">
