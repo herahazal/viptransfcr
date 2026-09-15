@@ -147,6 +147,26 @@ section {
   background: rgba(0, 0, 0, 0.4);
 }
 
+/* Mobile only — desktop's box (100svh) stays untouched above.
+   object-fit: cover's crop severity is set by the box's own aspect ratio,
+   not by object-position: on a tall, narrow phone screen the 100svh box was
+   far narrower (relative to its height) than this landscape photo, so cover
+   had to blow it up until only ~26% of the photo's width fit — the
+   "zoomed in" look. object-position can't fix that, it only picks which
+   26% shows.
+   This shrinks the box to match window.png's own transparent "hole"
+   (measured directly from the PNG's alpha channel: the hole spans ~17.8%
+   to ~77.8% of the artwork's height, cover-scaled the same way the photo
+   is) instead of the full viewport height — a shorter, wider-relative-to-
+   height box needs far less crop (~26% -> ~40% of the photo's width
+   visible) and still exactly fills the visible window opening, no gap. */
+@media (max-width: 1000px) {
+  .sky-photo {
+    top: 17.8svh;
+    height: 60svh;
+  }
+}
+
 /* ✅ Sky'nin altına base fade (desktop için aynı bırakıldı) */
 .sky-container::after {
   content: "";
