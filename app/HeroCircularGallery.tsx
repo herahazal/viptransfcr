@@ -177,9 +177,9 @@ const HeroCircularGallery = forwardRef<HeroCircularGalleryHandle>(
     return (
       <div className="hero-gallery" ref={wrapRef}>
         <div className="hero-gallery-stage">
-          {reducedMotion && (
+          {(reducedMotion || isMobile) && (
             <div className="hero-gallery-static">
-              {galleryItems.slice(0, 3).map((item) => (
+              {galleryItems.map((item) => (
                 <figure key={item.text}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={item.image} alt="" decoding="async" />
@@ -189,7 +189,7 @@ const HeroCircularGallery = forwardRef<HeroCircularGalleryHandle>(
             </div>
           )}
 
-          {!reducedMotion && (
+          {!reducedMotion && !isMobile && (
             <CircularGallery
               items={galleryItems}
               // Flatter on mobile (a higher bend number = a shallower curve,

@@ -762,7 +762,8 @@ section {
   height: 100%;
 }
 
-/* Reduced motion: a still arrangement in the same place. */
+/* Reduced motion (and, via the max-width: 900px block below, mobile in
+   general): a still arrangement in the same place. */
 .hero-gallery-static {
   position: absolute;
   inset: 0;
@@ -806,42 +807,35 @@ section {
 
   .hero-gallery-stage {
     height: min(40svh, 340px);
-    /* Only ~2.2 cards fit a phone's width, and this carousel's position is
-       scroll-linked rather than snapped to a card — wherever a visitor's
-       scroll happens to settle, it can land mid-transition between two
-       cards, neither centred. A wide, aggressive fade (not just a thin edge
-       vignette) keeps that from reading as broken at any scroll position:
-       only the middle ~1/4 of the stage stays fully opaque, so there's
-       always one clearly "in focus" card no matter where the neighbours
-       land, and they read as an intentional soft glimpse rather than a
-       competing, equally-sharp second card. */
-    -webkit-mask-image: linear-gradient(
-      to right,
-      transparent 0%,
-      #000 38%,
-      #000 62%,
-      transparent 100%
-    );
-    mask-image: linear-gradient(
-      to right,
-      transparent 0%,
-      #000 38%,
-      #000 62%,
-      transparent 100%
-    );
+    /* Mobile now renders the flat 3x2 grid (.hero-gallery-static), not the
+       single-focused-card WebGL carousel, so the edge-fade mask tuned for
+       that carousel no longer applies — every card in the grid is meant to
+       read equally sharp, not fade toward the sides. */
+  }
+
+  /* Flat, unrotated 3-column x 2-row grid — same stage, same reveal timing
+     (driven by HeroCircularGallery's own scroll progress, untouched here),
+     just a different inner layout than the WebGL carousel's curved cards. */
+  .hero-gallery-static {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 0.5rem;
+    padding: 0 0.75rem;
   }
 
   .hero-gallery-static figure {
-    width: 40vw;
+    width: 100%;
   }
 
   .hero-gallery-static img {
-    height: min(22svh, 190px);
+    height: min(15svh, 130px);
   }
 
-  /* three stills do not fit a phone; show two */
-  .hero-gallery-static figure:nth-child(3) {
-    display: none;
+  .hero-gallery-static figcaption {
+    margin-top: 0.3rem;
+    font-size: 0.55rem;
+    line-height: 1.1;
   }
 }
 
