@@ -65,6 +65,18 @@ section {
   overflow: hidden;
 }
 
+/* Mobile-only: the footer's stacked watermark+globe (added above) made its
+   content taller than 100svh. Same override pattern as .editorial further
+   down — height:auto + overflow:visible so it grows instead of clipping the
+   globe. min-height still keeps it at least a full screen tall. Scoped to
+   #global and to this breakpoint only; desktop keeps the global rule as-is. */
+@media (max-width: 900px) {
+  #global {
+    height: auto;
+    overflow: visible;
+  }
+}
+
 .hero {
   perspective: 1000px;
   color: var(--light);
