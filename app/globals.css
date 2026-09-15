@@ -837,6 +837,13 @@ section {
     margin-top: 0.2rem;
     font-size: 0.48rem;
     line-height: 1.05;
+    font-weight: 700;
+    color: #12212a;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    padding-bottom: 0.2rem;
+    border-bottom: 3px solid var(--gold);
   }
 }
 
