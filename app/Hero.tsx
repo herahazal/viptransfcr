@@ -68,20 +68,12 @@ export default function Hero() {
     // by ~30% into the pin — on a phone that was enough to push the window
     // frame's own border past the viewport edges within the first couple of
     // scroll ticks, leaving a plain full-bleed rectangle with no frame and
-    // no dark margin for the rest of the Hero, including while the gallery
-    // (HeroCircularGallery) is up — so its cards ended up appearing to sit
-    // "inside" the still-visible window instead of the full-bleed reveal
-    // they were designed for. Capping `ap` keeps the frame visible only
-    // while the family photo is the thing being shown (progress below the
-    // gallery's own ENTER_START); once the gallery starts sliding in, `ap`
-    // is released back to its original uncapped curve, which by that exact
-    // point has already reached its own natural max anyway (rawAp hits 0.5,
-    // windowScale's own cap, right at progress 0.3) — so the release lines
-    // up with, rather than fights, the existing curve. Desktop's `ap` is
-    // never touched.
+    // no dark margin for the rest of the Hero. Capping `ap` keeps the frame
+    // (and the one family photo behind it — the gallery overlay that used
+    // to take over past this point is now hidden on mobile in globals.css)
+    // visible for the whole pin. Desktop's `ap` is never touched.
     const isMobile = window.matchMedia("(max-width: 1000px)").matches;
     const MOBILE_AP_CAP = 0.02; // -> windowScale caps at 1.12x instead of 4x
-    const MOBILE_AP_CAP_RELEASE = 0.3; // HeroCircularGallery's ENTER_START
 
     const ctx = gsap.context(() => {
       const windowContainer = document.querySelector(".window-container");
@@ -108,10 +100,7 @@ export default function Hero() {
 
           // Original 3-viewport aperture curve, replayed over the first 3 of 5.
           const rawAp = Math.min(1, progress * APERTURE_SCALE);
-          const ap =
-            isMobile && progress < MOBILE_AP_CAP_RELEASE
-              ? Math.min(rawAp, MOBILE_AP_CAP)
-              : rawAp;
+          const ap = isMobile ? Math.min(rawAp, MOBILE_AP_CAP) : rawAp;
 
           // window scale — unchanged formula, unchanged absolute rate
           const windowScale = ap <= 0.5 ? 1 + (ap / 0.5) * 3 : 4;

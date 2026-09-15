@@ -822,6 +822,26 @@ section {
   text-align: center;
 }
 
+/* This overlay is a separate, always-existed (since the project's very
+   first commit) service carousel that slides in over the Hero photo once
+   scrolled far enough — desktop shows it too, at the same point. On a
+   phone its rotated cards, each with its own stock placeholder image and
+   caption, kept reading as "the correct family photo got replaced by a
+   wrong one" rather than as a distinct component — so on mobile the Hero
+   now just keeps showing the one photo, scroll to scroll, nothing layered
+   over it. Desktop is completely unaffected: the gallery still mounts and
+   updates every frame there exactly as before — this only hides the DOM
+   node, the JS driving it (and the component itself) is untouched.
+   1000px to match Hero.tsx's own `isMobile` check (the window-frame-zoom
+   cap this pairs with) — the other .hero-gallery mobile tweaks below are
+   moot once it's hidden, but stay at their own 900px for anyone who
+   re-enables it later. */
+@media (max-width: 1000px) {
+  .hero-gallery {
+    display: none;
+  }
+}
+
 @media (max-width: 900px) {
   .hero-gallery {
     gap: 1rem;
