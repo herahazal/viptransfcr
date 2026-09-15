@@ -96,10 +96,14 @@ const ENTER_START = 0.3;
 const ENTER_END = 0.48;
 
 /** Mobile renders the flat static grid instead of the WebGL carousel and had
- *  too much empty scroll before it appeared — same span (0.18) as desktop,
- *  so the slide-in takes just as long, just starts earlier. */
-const ENTER_START_MOBILE = 0.12;
-const ENTER_END_MOBILE = 0.3;
+ *  too much empty scroll before it appeared. These are expressed as a
+ *  fraction of Hero's mobile pin (PIN_VIEWPORTS_MOBILE = 2.5, see Hero.tsx),
+ *  chosen so the grid reaches the exact same ABSOLUTE scroll position
+ *  (0.6 and 1.5 viewport-heights) as when they were first tuned against the
+ *  5-viewport pin — shortening that pin later (to cut mobile's trailing dead
+ *  scroll) must not silently change how soon the grid appears. */
+const ENTER_START_MOBILE = 0.24;
+const ENTER_END_MOBILE = 0.6;
 
 /** How many item-widths the vertical scroll advances once it is in place. */
 const ITEMS_TRAVELLED = 5;

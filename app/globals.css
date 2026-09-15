@@ -838,12 +838,15 @@ section {
     font-size: 0.48rem;
     line-height: 1.05;
     font-weight: 700;
-    color: #12212a;
+    color: #fff;
     width: fit-content;
     margin-left: auto;
     margin-right: auto;
-    padding-bottom: 0.2rem;
-    border-bottom: 3px solid var(--gold);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    background: rgba(18, 33, 42, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
   }
 }
 

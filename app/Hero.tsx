@@ -23,7 +23,15 @@ gsap.registerPlugin(ScrollTrigger);
  */
 const PIN_VIEWPORTS = 5;
 const APERTURE_VIEWPORTS = 3;
-const APERTURE_SCALE = PIN_VIEWPORTS / APERTURE_VIEWPORTS;
+
+/** Mobile only: the static grid never advances past its single reveal (no
+ *  drag-driven "travel" the way the desktop carousel has), so the tail end of
+ *  the 5-viewport pin was dead scroll once the grid settled. Shortening the
+ *  pin to 2.5 viewports cuts that dead space — `ap`'s formula below depends
+ *  only on viewport-heights scrolled divided by APERTURE_VIEWPORTS, not on
+ *  the total pin length, so the aperture opens at the exact same absolute
+ *  scroll rate either way. */
+const PIN_VIEWPORTS_MOBILE = 2.5;
 
 /** Bottom fade into the plane section, kept clear of the gallery. */
 const FADE_START = 0.78;
@@ -76,10 +84,14 @@ export default function Hero() {
       const viewportHeight = window.innerHeight;
       const skyMoveDistance = skyContainerHeight - viewportHeight;
 
+      const isMobile = window.matchMedia("(max-width: 900px)").matches;
+      const pinViewports = isMobile ? PIN_VIEWPORTS_MOBILE : PIN_VIEWPORTS;
+      const apertureScale = pinViewports / APERTURE_VIEWPORTS;
+
       ScrollTrigger.create({
         trigger: hero,
         start: "top top",
-        end: () => `+=${window.innerHeight * PIN_VIEWPORTS}px`,
+        end: () => `+=${window.innerHeight * pinViewports}px`,
         pin: true,
         pinSpacing: true,
         scrub: 1,
@@ -87,8 +99,9 @@ export default function Hero() {
         onUpdate: (self) => {
           const progress = self.progress;
 
-          // Original 3-viewport aperture curve, replayed over the first 3 of 5.
-          const ap = Math.min(1, progress * APERTURE_SCALE);
+          // Original 3-viewport aperture curve, replayed over the first 3
+          // viewport-heights of the pin, however long the pin itself is.
+          const ap = Math.min(1, progress * apertureScale);
 
           // window scale — unchanged formula, unchanged absolute rate
           const windowScale = ap <= 0.5 ? 1 + (ap / 0.5) * 3 : 4;
