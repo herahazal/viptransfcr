@@ -542,69 +542,44 @@ section {
 
 /* ✅ Mobile: window içindeki yazılar taşmasın (DESKTOP bozulmaz) */
 @media (max-width: 1000px) {
-  /* Logo/meta/TR-EN/tagline used to overlay the window photo directly
-     (same as desktop) — on a phone, busy photo behind them made them hard
-     to read and felt like they were "sitting on top of" the picture.
-     Restructured into two solid bands instead: a top band (logo left,
-     "PREMIUM TRANSFER HİZMETİ" + TR/EN right — same left/right split as
-     desktop's row 1, just with a background now) and a bottom band (the
-     tagline) — both drawn via ::before/::after so no new element is added.
-     Between them (grid's `1fr` row) stays fully transparent, so the window
-     itself is unobstructed. `.window-container`/`.sky-photo` and the
-     scroll animation are untouched — this only affects the two solid bands
-     and where the existing text sits. */
   .hero-header {
-    padding: 0;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 1fr auto;
+    padding: 1.25rem; /* desktop 2rem kalır */
+    /* Extra breathing room under the text block, same reasoning as before:
+       without it, logo + label + toggle + heading read as cramped right
+       against the bottom edge on a phone. */
+    padding-bottom: 3rem;
+    display: grid; /* flex yerine daha stabil */
+    grid-template-columns: 1fr; /* tek kolon: logo, meta, tagline alt alta */
+    grid-template-rows: auto auto auto;
+    align-content: end;
+    /* Was 1.25rem outer + 1.4rem inner (two different gaps, from the old
+       nested-column structure) — one row-gap now that all three are flat
+       grid siblings. */
+    row-gap: 1.4rem;
   }
 
-  .hero-header::before,
-  .hero-header::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    z-index: -1;
-    background: #0b0b0c;
-    pointer-events: none;
-  }
-
-  .hero-header::before {
-    top: 0;
-    height: 6rem;
-  }
-
-  .hero-header::after {
-    bottom: 0;
-    height: 7rem;
+  /* Masaüstünde row 1'i paylaşıp merkezde hizalanıyorlardı — mobilde tek
+     sütunda üst üste dizildikleri için o düzenin hepsini sıfırla. */
+  .hero-logo-slot,
+  .hero-header-meta,
+  .hero-tagline {
+    grid-column: 1;
+    align-self: auto;
+    justify-self: start;
   }
 
   .hero-logo-slot {
-    grid-column: 1;
     grid-row: 1;
-    justify-self: start;
-    align-self: center;
-    padding: 0 1.25rem;
   }
 
   .hero-header-meta {
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: end;
-    align-self: center;
-    text-align: right;
-    padding: 0 1.25rem;
+    grid-row: 2;
+    text-align: left;
   }
 
   .hero-tagline {
-    grid-column: 1 / -1;
     grid-row: 3;
-    justify-self: end;
-    align-self: center;
-    text-align: right;
-    padding: 0 1.25rem;
+    text-align: left;
   }
 
   /* Metinleri mobile’a uygun küçült */
