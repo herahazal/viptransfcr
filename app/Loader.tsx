@@ -40,6 +40,14 @@ const CRITICAL = [
 /** Never hold the page longer than this, however slow the network is. */
 const MAX_HOLD_MS = 6000;
 
+/** Always hold it at least this long, however fast the network is — with
+ *  the hero photo now a ~220KB real JPEG (was an accidental ~1.7MB PNG),
+ *  CRITICAL can finish loading within a couple of frames on localhost or a
+ *  warm CDN cache, and the loader flashed and vanished almost before it
+ *  painted. A floor keeps the brand moment legible even when nothing was
+ *  actually worth waiting for. */
+const MIN_HOLD_MS = 900;
+
 export default function Loader() {
   const { t } = useLanguage();
   const [progress, setProgress] = useState(0);
@@ -71,12 +79,26 @@ export default function Loader() {
   useEffect(() => {
     let cancelled = false;
     let loaded = 0;
+    const start = Date.now();
+    let minHoldTimer: ReturnType<typeof window.setTimeout> | null = null;
 
-    const finish = () => {
+    const reveal = () => {
       if (doneRef.current || cancelled) return;
       doneRef.current = true;
       setProgress(1);
       setDone(true);
+    };
+
+    // Everything CRITICAL can finish loading within a frame or two (fast
+    // network, warm cache) — reveal() then would fire almost immediately,
+    // so wait out whatever's left of MIN_HOLD_MS first.
+    const finish = () => {
+      const remaining = MIN_HOLD_MS - (Date.now() - start);
+      if (remaining > 0) {
+        minHoldTimer = window.setTimeout(reveal, remaining);
+      } else {
+        reveal();
+      }
     };
 
     const bump = () => {
@@ -97,10 +119,14 @@ export default function Loader() {
         .catch(() => bump());
     });
 
-    const guard = window.setTimeout(finish, MAX_HOLD_MS);
+    // The MAX_HOLD_MS safety net bypasses the MIN_HOLD_MS wait on purpose —
+    // if assets are taking this long, get out of the way immediately rather
+    // than holding the cover up any longer than necessary.
+    const guard = window.setTimeout(reveal, MAX_HOLD_MS);
     return () => {
       cancelled = true;
       window.clearTimeout(guard);
+      if (minHoldTimer) window.clearTimeout(minHoldTimer);
     };
   }, []);
 
