@@ -161,9 +161,18 @@ export default function GlobalFooter() {
             — after the text, sized off the viewport's own width so it can
             never outgrow the screen — so it can never overlap anything. */}
         <div className="pointer-events-auto flex justify-center pb-12 sm:hidden">
-          <div className="relative aspect-square w-[58vw] max-w-[240px]">
-            <div className="pointer-events-none absolute inset-0 rounded-full bg-white/10 blur-2xl" />
-            <Globe className="!inset-0" />
+          <div className="relative flex w-full items-center justify-center">
+            {/* Same huge background word as desktop (see the sm:block copy
+                above), scaled down to the phone's own width so it reads as
+                a background decoration around the globe instead of
+                overflowing or colliding with the text above it. */}
+            <div className="pointer-events-none absolute inset-0 flex select-none items-center justify-center overflow-hidden whitespace-nowrap font-[600] tracking-tight text-white/10 blur-[0.2px] [font-size:clamp(56px,26vw,150px)]">
+              Transfer
+            </div>
+            <div className="relative aspect-square w-[58vw] max-w-[240px]">
+              <div className="pointer-events-none absolute inset-0 rounded-full bg-white/10 blur-2xl" />
+              <Globe className="!inset-0" />
+            </div>
           </div>
         </div>
       </div>
