@@ -160,19 +160,18 @@ export default function GlobalFooter() {
             is a second, independent instance that sits in NORMAL FLOW instead
             — after the text, sized off the viewport's own width so it can
             never outgrow the screen — so it can never overlap anything. */}
-        <div className="pointer-events-auto flex justify-center pb-12 sm:hidden">
-          <div className="relative flex w-full items-center justify-center">
-            {/* Same huge background word as desktop (see the sm:block copy
-                above), scaled down to the phone's own width so it reads as
-                a background decoration around the globe instead of
-                overflowing or colliding with the text above it. */}
-            <div className="pointer-events-none absolute inset-0 flex -translate-y-[18%] select-none items-center justify-center overflow-hidden whitespace-nowrap font-[600] tracking-tight text-white/10 blur-[0.2px] [font-size:clamp(56px,26vw,150px)]">
-              Transfer
-            </div>
-            <div className="relative aspect-square w-[58vw] max-w-[240px]">
-              <div className="pointer-events-none absolute inset-0 rounded-full bg-white/10 blur-2xl" />
-              <Globe className="!inset-0" />
-            </div>
+        <div className="pointer-events-auto flex flex-col items-center gap-2 pb-12 sm:hidden">
+          {/* Same huge background word as desktop (see the sm:block copy
+              above), scaled down to the phone's own width. In normal flow,
+              stacked ABOVE the globe (not overlaid on it) — the two can
+              never overlap regardless of screen size, since one simply
+              isn't positioned on top of the other. */}
+          <div className="pointer-events-none w-full select-none overflow-hidden whitespace-nowrap text-center font-[600] tracking-tight text-white/10 blur-[0.2px] [font-size:clamp(44px,20vw,110px)]">
+            Transfer
+          </div>
+          <div className="relative aspect-square w-[58vw] max-w-[240px]">
+            <div className="pointer-events-none absolute inset-0 rounded-full bg-white/10 blur-2xl" />
+            <Globe className="!inset-0" />
           </div>
         </div>
       </div>
