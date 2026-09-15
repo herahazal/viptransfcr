@@ -76,6 +76,12 @@ const GALLERY_ITEMS_EN = [
 const ENTER_START = 0.3;
 const ENTER_END = 0.48;
 
+/** Mobile renders the flat static grid instead of the WebGL carousel and had
+ *  too much empty scroll before it appeared — same span (0.18) as desktop,
+ *  so the slide-in takes just as long, just starts earlier. */
+const ENTER_START_MOBILE = 0.12;
+const ENTER_END_MOBILE = 0.3;
+
 /** How many item-widths the vertical scroll advances once it is in place. */
 const ITEMS_TRAVELLED = 5;
 
@@ -137,9 +143,12 @@ const HeroCircularGallery = forwardRef<HeroCircularGalleryHandle>(
           const wrap = wrapRef.current;
           if (!wrap) return;
 
+          const enterStart = isMobile ? ENTER_START_MOBILE : ENTER_START;
+          const enterEnd = isMobile ? ENTER_END_MOBILE : ENTER_END;
+
           const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
           const slide = clamp01(
-            (progress - ENTER_START) / (ENTER_END - ENTER_START),
+            (progress - enterStart) / (enterEnd - enterStart),
           );
 
           // Position only — opacity stays at 1 and is never animated.
@@ -147,7 +156,7 @@ const HeroCircularGallery = forwardRef<HeroCircularGalleryHandle>(
 
           // Visibility is the only binary, and it flips while the gallery is
           // still completely off-screen, so it can never appear abruptly.
-          const shouldShow = progress >= ENTER_START;
+          const shouldShow = progress >= enterStart;
           if (shouldShow !== shownRef.current) {
             shownRef.current = shouldShow;
             wrap.style.visibility = shouldShow ? "visible" : "hidden";
@@ -165,13 +174,13 @@ const HeroCircularGallery = forwardRef<HeroCircularGalleryHandle>(
           // Items advance from the moment it lands to the end of the Hero. The
           // user's drag offset lives inside the gallery and is added on top, so
           // scrolling never cancels a drag.
-          const span = Math.max(0.0001, 1 - ENTER_END);
-          const travel = clamp01((progress - ENTER_END) / span);
+          const span = Math.max(0.0001, 1 - enterEnd);
+          const travel = clamp01((progress - enterEnd) / span);
           const width = api.getItemWidth();
           if (width > 0) api.setScrollBase(travel * ITEMS_TRAVELLED * width);
         },
       }),
-      [reducedMotion],
+      [reducedMotion, isMobile],
     );
 
     return (
