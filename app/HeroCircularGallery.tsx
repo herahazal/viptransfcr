@@ -101,11 +101,6 @@ const ENTER_END = 0.48;
 const ENTER_START_MOBILE = 0.12;
 const ENTER_END_MOBILE = 0.3;
 
-/** Mobile-only: SET 1 slides out and SET 2 slides in over this range, using
- *  the same translateY mechanics as the initial entrance. */
-const SET2_START_MOBILE = 0.55;
-const SET2_END_MOBILE = 0.72;
-
 /** How many item-widths the vertical scroll advances once it is in place. */
 const ITEMS_TRAVELLED = 5;
 
@@ -141,15 +136,16 @@ const HeroCircularGallery = forwardRef<HeroCircularGalleryHandle>(
     const apiRef = useRef<CircularGalleryApi | null>(null);
     /** Mirrors the current visibility so we only touch the DOM on a change. */
     const shownRef = useRef(false);
-    /** Mobile-only: the two stacked static grids swapped via scroll. */
-    const set1GridRef = useRef<HTMLDivElement | null>(null);
-    const set2GridRef = useRef<HTMLDivElement | null>(null);
+    /** Mobile-only: the single 12-item static grid. */
+    const mobileGridRef = useRef<HTMLDivElement | null>(null);
 
     const isMobile = useMediaQuery("(max-width: 900px)");
     const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
     const { lang } = useLanguage();
     const galleryItems = lang === "tr" ? GALLERY_ITEMS_TR : GALLERY_ITEMS_EN;
     const galleryItems2 = lang === "tr" ? GALLERY_ITEMS_TR_2 : GALLERY_ITEMS_EN_2;
+    /** Mobile-only: all 12 stills shown together in one 3x4 grid. */
+    const mobileGalleryItems = [...galleryItems, ...galleryItems2];
 
     // Images are requested on the very first client render, alongside the
     // renderer below. Everything therefore loads behind the entry loader, and
@@ -206,23 +202,6 @@ const HeroCircularGallery = forwardRef<HeroCircularGalleryHandle>(
           const interactive = slide >= 1;
           wrap.style.pointerEvents = interactive ? "auto" : "none";
 
-          // Mobile-only: SET 1 -> SET 2 swap, same translateY mechanics as
-          // the initial entrance, just a second range further down the pin.
-          if (isMobile) {
-            const set1El = set1GridRef.current;
-            const set2El = set2GridRef.current;
-            if (set1El && set2El) {
-              const switchProgress = clamp01(
-                (progress - SET2_START_MOBILE) /
-                  (SET2_END_MOBILE - SET2_START_MOBILE),
-              );
-              set1El.style.transform = `translateY(${(-switchProgress * 100).toFixed(2)}svh)`;
-              set1El.style.visibility = switchProgress >= 1 ? "hidden" : "visible";
-              set2El.style.transform = `translateY(${((1 - switchProgress) * 100).toFixed(2)}svh)`;
-              set2El.style.visibility = switchProgress <= 0 ? "hidden" : "visible";
-            }
-          }
-
           if (!shouldShow || reducedMotion) return;
 
           const api = apiRef.current;
@@ -256,26 +235,15 @@ const HeroCircularGallery = forwardRef<HeroCircularGalleryHandle>(
           )}
 
           {isMobile && (
-            <>
-              <div className="hero-gallery-static" ref={set1GridRef}>
-                {galleryItems.map((item) => (
-                  <figure key={item.text}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={item.image} alt="" decoding="async" />
-                    <figcaption>{item.text}</figcaption>
-                  </figure>
-                ))}
-              </div>
-              <div className="hero-gallery-static" ref={set2GridRef}>
-                {galleryItems2.map((item) => (
-                  <figure key={item.text}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={item.image} alt="" decoding="async" />
-                    <figcaption>{item.text}</figcaption>
-                  </figure>
-                ))}
-              </div>
-            </>
+            <div className="hero-gallery-static" ref={mobileGridRef}>
+              {mobileGalleryItems.map((item, i) => (
+                <figure key={`${item.text}-${i}`}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={item.image} alt="" decoding="async" />
+                  <figcaption>{item.text}</figcaption>
+                </figure>
+              ))}
+            </div>
           )}
 
           {!reducedMotion && !isMobile && (

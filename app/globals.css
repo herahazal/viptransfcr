@@ -806,21 +806,22 @@ section {
   }
 
   .hero-gallery-stage {
-    height: min(40svh, 340px);
-    /* Mobile now renders the flat 3x2 grid (.hero-gallery-static), not the
+    height: min(58svh, 480px);
+    /* Mobile now renders the flat 3x4 grid (.hero-gallery-static), not the
        single-focused-card WebGL carousel, so the edge-fade mask tuned for
        that carousel no longer applies — every card in the grid is meant to
        read equally sharp, not fade toward the sides. */
   }
 
-  /* Flat, unrotated 3-column x 2-row grid — same stage, same reveal timing
-     (driven by HeroCircularGallery's own scroll progress, untouched here),
-     just a different inner layout than the WebGL carousel's curved cards. */
+  /* Flat, unrotated 3-column x 4-row grid (all 12 stills at once) — same
+     stage, same single reveal (driven by HeroCircularGallery's own scroll
+     progress, untouched here), just a different inner layout than the
+     WebGL carousel's curved cards. */
   .hero-gallery-static {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    gap: 0.5rem;
+    grid-template-rows: repeat(4, 1fr);
+    gap: 0.4rem;
     padding: 0 0.75rem;
   }
 
@@ -829,13 +830,13 @@ section {
   }
 
   .hero-gallery-static img {
-    height: min(15svh, 130px);
+    height: min(8.5svh, 78px);
   }
 
   .hero-gallery-static figcaption {
-    margin-top: 0.3rem;
-    font-size: 0.55rem;
-    line-height: 1.1;
+    margin-top: 0.2rem;
+    font-size: 0.48rem;
+    line-height: 1.05;
   }
 }
 
