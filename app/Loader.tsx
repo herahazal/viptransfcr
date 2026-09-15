@@ -80,7 +80,7 @@ export default function Loader() {
     let cancelled = false;
     let loaded = 0;
     const start = Date.now();
-    let minHoldTimer: ReturnType<typeof window.setTimeout> | null = null;
+    let minHoldTimer: number | null = null;
 
     const reveal = () => {
       if (doneRef.current || cancelled) return;
