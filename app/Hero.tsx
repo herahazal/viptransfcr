@@ -174,7 +174,7 @@ export default function Hero() {
         <div className="sky-container">
           <div className="sky-photo">
             <Image
-              src="/images/aile-vito-transfer.jpg"
+              src="/images/new.png"
               alt={t(
                 "Bir aile bavullarıyla My VIP Transfer'in Mercedes Vito aracına doğru yürüyor",
                 "A family walks with their luggage toward a My VIP Transfer Mercedes Vito",

@@ -32,7 +32,7 @@ const useIsomorphicLayoutEffect =
  *  plus the loader's own logo (small, but it's the only thing on screen
  *  while this runs — no reason not to gate on it too). */
 const CRITICAL = [
-  "/images/aile-vito-transfer.jpg",
+  "/images/new.png",
   "/window.png",
   "/images/logo/logo-transparent.png",
 ];
